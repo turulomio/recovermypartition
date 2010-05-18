@@ -1,0 +1,104 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-05-18 21:36+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../recovermypartition.py:165
+msgid "Problema al modificar los atributos del fichero '"
+msgstr ""
+
+#: ../recovermypartition.py:289
+msgid "Error en la lectura de argumentos"
+msgstr ""
+
+#: ../recovermypartition.py:328
+msgid "Ficheros"
+msgstr ""
+
+#: ../recovermypartition.py:329
+msgid "Borrados"
+msgstr ""
+
+#: ../recovermypartition.py:330 ../recovermypartition.py:331
+msgid "CSA"
+msgstr ""
+
+#: ../recovermypartition.py:337
+msgid "Ha habido problemas al crear los directorios de salida"
+msgstr ""
+
+#: ../recovermypartition.py:341
+msgid "Solo extrae los ficheros normales"
+msgstr ""
+
+#: ../recovermypartition.py:343
+msgid "Solo extrae los ficheros borrados"
+msgstr ""
+
+#: ../recovermypartition.py:347
+msgid "Particion o imagen a analizar"
+msgstr ""
+
+#: ../recovermypartition.py:348
+msgid "Directorio de salida"
+msgstr ""
+
+#: ../recovermypartition.py:352
+msgid "Recuperando el sistema de ficheros"
+msgstr ""
+
+#: ../recovermypartition.py:365 ../recovermypartition.py:370
+msgid "  - Normales. Quedan "
+msgstr ""
+
+#: ../recovermypartition.py:365 ../recovermypartition.py:370
+#: ../recovermypartition.py:392 ../recovermypartition.py:397
+msgid " de "
+msgstr ""
+
+#: ../recovermypartition.py:365 ../recovermypartition.py:370
+#: ../recovermypartition.py:392 ../recovermypartition.py:397
+msgid ". [ Recuperados: "
+msgstr ""
+
+#: ../recovermypartition.py:365 ../recovermypartition.py:392
+msgid "   NSRL: "
+msgstr ""
+
+#: ../recovermypartition.py:365 ../recovermypartition.py:370
+#: ../recovermypartition.py:392 ../recovermypartition.py:397
+msgid " ]. T.Est: "
+msgstr ""
+
+#: ../recovermypartition.py:379
+msgid "Recuperando ficheros borrados"
+msgstr ""
+
+#: ../recovermypartition.py:392 ../recovermypartition.py:397
+msgid "  - Borrados. Quedan "
+msgstr ""
+
+#: ../recovermypartition.py:392
+msgid " ]. [ Recuperados: "
+msgstr ""
+
+#: ../recovermypartition.py:403
+msgid "Generando imagen dd de los clusters sin asignar"
+msgstr ""
+
+#: ../recovermypartition.py:404 ../recovermypartition.py:406
+msgid "csa"
+msgstr ""
