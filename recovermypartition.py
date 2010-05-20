@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*- 
-import os, sys, getopt, time,  string,  math,  calendar,  re
+import os, sys, time,  string,  math,  calendar,  datetime
+from subprocess import *
+from optparse import OptionParser
 from gettext import *
 
 class Color:
@@ -81,15 +83,7 @@ def contador(puntpasosdesdecero, totalpasos, tiempo_inicio_contador_parcial):
     resultado=(totalpasos-puntpasosdesdecero)*(tiempoactual-tiempo_inicio_contador_parcial)/puntpasosdesdecero
     return resultado
 
-    
-def path2shell(cadena):
-    cadena=string.replace(cadena,'\\','\\\\')
-    todelete=('?','$','#','"',"'",'`','(',')','[',']','|','{','}','~',' ', ';','=','&','!','¡')
-    for caracter in todelete:
-        subs=''
-        subs=subs.join(('\\',caracter))
-        cadena=string.replace(cadena,caracter,subs)
-    return cadena
+
 
 def path2sleuthkit(cadena):
     """Que sustituya por _ cuando se saca un listado sleuthkit y
@@ -116,42 +110,9 @@ def string2time(cadena):
     except:
         return None
     return t 
-  
-def ayuda():
-    print "recoverpartition [opciones] -p dispositivofisico|imagen.dd"
-    print "  Brief: Recupera los ficheros, los ficheros borrados de una particion"
-    print "         e intenta recuperar ficheros desde los clusters sin asignar."  
-    print "  Version: " + version
-    print "  Opciones: "
-    print "           -p particion: particion o imagen"
-    print "           -h: muestra esta ayuda"
-    print "           -f: saca solo los ficheros normales"
-    print "           -b: saca solo los borrados"
-    print "           -o: directorio de salida (Default: Current Directory)"        
-    print "           -n directorio: ubicación de la base de datos NSRL)"        
 
-
-class EspacioSinAsignar:      
-    def GeneraImagenDD(self, path_evidencia ,  path_salida_dd):
-        """
-            Funcion que genera un fichero texto partiendo de los clusters
-            sin asignar de una determinada imagen
-            
-            Devuelve un booleano dependiendo del exito en la finalizacion de 
-            la operacion.
-            
-            El fichero se genera en 
-            directoriotemporaltrabajo+'/csa/particion.' + idparticion + '
-        """
-        try:
-            os.makedirs(path)
-        except:
-            pass
-        comando='blkls -s %s  > %s'%(path_evidencia, path_salida_dd)
-        sal=os.popen(comando)
-        
 class Sleuthkit:      
-    def atributos_desde_linea_sleuthkit(self,l):
+    def fls2arr(self,l):
         """
             Si el inodo vale 0 devuelve None
             file_type inode file_name mod_time acc_time chg_time cre_time size uid gid
@@ -180,231 +141,153 @@ class Sleuthkit:
         atributos['size']=int(l.split(chr(9))[6])
         atributos['uid']=int(l.split(chr(9))[7])
         atributos['gid']=int(l.split(chr(9))[8])
-        #print str(l) + str(atributos)
         return atributos
     
-    def crear_listado_ficheros(self , path_salida, path_imagen):
+    def blkls(self, path_evidencia ,  path_salida_dd):
         """
-            Funcion que genera el listado de ficheros de una particion 
-             normales
+            Funcion que genera un fichero texto partiendo de los clusters
+            sin asignar de una determinada imagen
             
-            Lo genera en el directorio temporal de trabajo pasado como 
-            parametro y en 
-        """
-        os.popen('fls -prFul ' + path_imagen + ' > ' + path_salida )
-        return self.numero_lineas_fichero(path_salida)    
-        
-    
-    def crear_listado_ficheros_borrados(self , path_salida, path_imagen):
-        """
-            Funcion que genera el listado de ficheros de una particion 
-            borrados y normales
+            Devuelve un booleano dependiendo del exito en la finalizacion de 
+            la operacion.
             
-            Lo genera en el directorio temporal de trabajo pasado como 
-            parametro y en 
+            El fichero se genera en 
+            directoriotemporaltrabajo+'/csa/particion.' + idparticion + '
         """
-        os.popen('fls -prFdl ' + path_imagen + ' > ' + path_salida )
-        return self.numero_lineas_fichero(path_salida)
-        
-    def numero_lineas_fichero(self,path):
-        dic=os.popen("wc -l "+path+" | cut -f1 -d' '")
-        return int(dic.readline())
-        
-    def recupera_fichero(self, directoriocreacion,enlacefisico,lineasleut):
+        try:
+            os.makedirs(path)
+        except:
+            pass
+        comando='blkls -s %s  > %s'%(path_evidencia, path_salida_dd)
+        sal=os.popen(comando)
+
+
+    def icat(self, lineasleuthkit):
         """
             Funcion que partiendo de una linea sin el caracter de retorno sleut
             y lo coloca en su directorio, 
             
             Devuelve un booleano si ha tenido exito o no la recuperacion
         """
-        dic_atr=self.atributos_desde_linea_sleuthkit(lineasleut)
+        dic_atr=self.fls2arr(lineasleuthkit)
         if dic_atr==None:
             return False
-        salida=directoriocreacion+ path2sleuthkit(dic_atr['file_name'])
-        #print salida, dic_atr
-        #pathsincomillas=path2sleuthkit(dic_atr['file_name'])
-        if dic_atr['type_filename']=="r" or dic_atr['type_filename']=="l" or dic_atr['type_filename']=="-":
+        if dic_atr['type_filename']=="r" or dic_atr['type_filename']=="l" or dic_atr['type_filename']=="-" or dic_atr['type_filename']=="v":
+            salida=dir_files+ dic_atr['file_name']#path2sleuthkit
             try:
                 os.makedirs(os.path.dirname(salida))
             except OSError:
                 pass
-            comando= 'icat -r ' + enlacefisico + ' ' +str(dic_atr['inode'])
-            fichero=os.popen('icat -r ' + enlacefisico + ' ' +str(dic_atr['inode'])).read()
-            f=open(salida,"w")
-            f.write(fichero)
-            f.close()
-        elif dic_atr['type_filename']=="d":
-	    os.makedirs(os.path.dirname(salida))
-	else:
-	    print "\nFichero tipo ",  dic_atr['type_filename'], salida
-	    return False
+            p = Popen('icat -r ' + options.partition + ' ' +str(dic_atr['inode']) +" > /tmp/recovermypartition", shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
+            error=p.stderr.read()[:-1]
+            if len(error)>0:
+                log.write (str(datetime.datetime.now()) + "\t" +  lineasleuthkit.split(chr(9))[0]+ "\t"+ salida+ "\ticat. " +  error + "\n")            
+            os.rename ("/tmp/recovermypartition",  salida)
+        elif dic_atr['type_filename']=="d":       
+            salida=dir_deleted+ dic_atr['file_name']#path2sleuthkit     
+            try:
+                os.makedirs(salida)
+            except OSError:
+                pass
+        else:
+            log.write (str(datetime.datetime.now()) + "\t" +  lineasleuthkit.split(chr(9))[0]+ "\t"+ salida+ "\tFichero tipo " +  dic_atr['type_filename'] + "\n")
+            return False
 
-	try:
+        try:
             accesed=calendar.timegm(dic_atr['acc_time'])
         except:
-	    print "    - No se ha podido modificar la fecha de acceso de " + 
-	    accesed=0
-	try:
+            log.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida+ "\tNo se ha podido modificar la fecha de acceso\n" )
+            accesed=0
+    
+        try:
             modified=calendar.timegm(dic_atr['mod_time'])
-	    print "    - No se ha podido modificar la fecha de modificación de " + str(dic_atr)
         except:
-	    modified=0
-	os.utime(salida,(accesed,modified))
- 
+            log.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida+ "\tNo se ha podido modificar la fecha de modificación\n")
+            modified=0
+        os.utime(salida,(accesed,modified))
         return True
 
-
-path_imagen=None   #Cadena con el nombre del dispositivo fisico o imagen dd
-dir_tmp=None       #Cadena con el directorio de ficheros temporales
-dir_salida=None     
-dir_csa=None
-num_total_ficheros=0 # Numero de ficheros en la lista de recuperacion
-num_positivos_nsrl=0 #Numero de ficheros que dan positivo en nsrl
-num_recuperados=0
-extraer_solo_borrados=False
-extraer_solo_normales=False
-usar_nsrl=False
-version="20100518"
     
-    
-
 bindtextdomain('recovermypartition','/usr/share/locale/')
 textdomain('recovermypartition')
 
 def _(cadena):
     return gettext(cadena)
- 
-if (len(sys.argv)<=1): 
-    ayuda()
-    sys.exit(1)
+
+num_total_ficheros=0 # Numero de ficheros en la lista de recuperacion
+num_positivos_nsrl=0 #Numero de ficheros que dan positivo en nsrl
+num_recuperados=0
+version="20100518"
     
-try:
-    opts,args=getopt.gnu_getopt(sys.argv[1:],'vfbo:n:p:')
-except getopt.GetoptError:
-    print _(u'Error en la lectura de argumentos')+'\n'
-    sys.exit(2)
-
-for o,a in opts:
-
-    if o == '-b':
-        extraer_solo_borrados=True
-
-    if o == '-p':
-        path_imagen=a
-
-    if o == '-h':
-        ayuda()
-        sys.exit()
-
-    if o == '-f':
-        extraer_solo_normales=True
-        
-    if o == '-o':
-        dir_tmp=endslash(a)
-
-    if o== '-n':
-        usar_nsrl=True
-
-
-if path_imagen==None:
-    print ("No se ha encontrado la imagen")
-    ayuda()
-    sys.exit()
-    
-if extraer_solo_borrados==True and extraer_solo_normales==True:
-    extraer_solo_borrados=False
-    extraer_solo_normales=False            
-
-if dir_tmp==None:
-    dir_tmp=endslash(os.getcwd())
+parser = OptionParser(version=version,  description="Recupera los ficheros, los ficheros borrados de una particion")
+parser.add_option( "--no-files", action="store_true", default=False, dest="nofiles", help=u"No extrae ficheros normales")
+parser.add_option( "--no-deleted", action="store_true", default=False, dest="nodeleted", help=u"No extrae ficheros borrados")
+parser.add_option( "--csa", action="store_true", default=False, dest="csa", help=u"Analiza los clusters sin asignar con foremost")
+parser.add_option( "--nsrl", action="store_true", default=False, dest="nsrl", help=u"Chequea contra la base de datos nrsl")
+parser.add_option( "--partition", action="store", dest="partition", help=u"Partición o imagen a analizar")
+parser.add_option( "--output", action="store",  dest="output", default="output/",  help=u"Directorio de salida (Default output)")
+(options, args) = parser.parse_args()
 
 try:
-    dir_salida=dir_tmp+"output/"#Cadena con el directorio raiz donde se genera todo.
-    dir_ficheros=dir_salida+_('Ficheros')+'/'
-    dir_borrados=dir_salida+_('Borrados')+'/'
-    dir_csa=dir_salida+_('CSA')+'/'
-    dir_foremost=dir_salida+_('CSA')+'/'
-    os.makedirs(dir_salida)
-    os.makedirs(dir_ficheros)
-    os.makedirs(dir_borrados)
-    os.makedirs(dir_csa)
+    dir_files=options.output+_('Ficheros')+'/'
+    dir_deleted=options.output+_('Borrados')+'/'
+    dir_uac=options.output+_('CSA')+'/'
+    os.makedirs(options.output)
+    os.makedirs(dir_files)
+    os.makedirs(dir_deleted)
+    os.makedirs(dir_uac)
 except OSError:
-    print _("Ha habido problemas al crear los directorios de salida. Compruebe que no existe")
+    print (_("Ha habido problemas al crear los directorios de salida. Compruebe que no existe"))
     sys.exit()
     
-if extraer_solo_normales==True:
-    print Color().red(_(u"Solo extrae los ficheros normales"))
-elif extraer_solo_borrados==True:
-    print Color().red(_(u"Solo extrae los ficheros borrados"))
+log=open(options.output+"recoverymypartition.log", "w")
     
-
-
-print Color().fuchsia(_(u"Particion o imagen a analizar")+": ") + path_imagen
-print Color().fuchsia(_(u"Directorio de salida")+":          ") + dir_salida
+if options.nofiles==False and options.nodeleted==False:
+    print (Color().red(_(u"Extrae todos los ficheros, incluidos borrados")))
+    fls=os.popen("fls -prl " + options.partition ).readlines()
+elif options.nofiles==True and options.nodeleted==False:
+    print (Color().red(_(u"Solo extrae los ficheros borrados")))
+    fls=os.popen("fls -prdl " + options.partition ).readlines()
+elif options.nofiles==False and options.nodeleted==True:
+    print (Color().red(_(u"Solo extrae los ficheros normales")))
+    fls=os.popen("fls -prul " + options.partition ).readlines()
+    
+print (Color().fuchsia(_(u"Particion o imagen a analizar")+": ") + options.partition)
+print (Color().fuchsia(_(u"Directorio de salida")+":          ") + options.output)
 
 tiempo_contador_parcial=time.time()
+num_total_ficheros=len(fls)
+puntnumerototalficheros=num_total_ficheros
 
-print Color().green("+ "+_("Recuperando el sistema de ficheros"))
-if extraer_solo_borrados==False:
-    num_total_ficheros=Sleuthkit().crear_listado_ficheros(dir_tmp+'/recuperaparticion.listaficheros',path_imagen)
-    puntnumerototalficheros=num_total_ficheros
-    f=file(dir_tmp+'/recuperaparticion.listaficheros',"r")
-    while True:   
-        linea=f.readline()
-        if linea=='':
-            break
-        if usar_nsrl==True:
-            if Sleuthkit().recupera_fichero_sino_nsrl(dir_ficheros,path_imagen,linea[:-1])==True:
-                num_recuperados=num_recuperados+1
-            puntnumerototalficheros=puntnumerototalficheros-1
-            cadena= _(u"  - Normales. Quedan ") + str(puntnumerototalficheros) + _(u" de ") + str(num_total_ficheros) + _(u". [ Recuperados: ")+Color().green(str(num_recuperados))+_(u"   NSRL: ")+Color().green(str(num_positivos_nsrl))+_(u" ]. T.Est: ") + segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial))
-        else:
-            if Sleuthkit().recupera_fichero(dir_ficheros,path_imagen,linea[:-1])==True:
-                num_recuperados=num_recuperados+1
-            puntnumerototalficheros=puntnumerototalficheros-1
-            cadena= _(u"  - Normales. Quedan ") + str(puntnumerototalficheros) + _(u" de ") + str(num_total_ficheros) + _(u". [ Recuperados: ")+Color().green(str(num_recuperados))+_(u" ]. T.Est: ") + Color().yellow(segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial)) ) + "  "
-            
-            
-        sys.stdout.write("\b"*(len(cadena)+5)) 
-        sys.stdout.write (cadena)   
-        sys.stdout.flush()  
-    print ""
+print (Color().green("+ "+_("Recuperando "+  str(num_total_ficheros) +" ficheros de la partición. Este proceso puede tardar bastante")))
 
-
-print Color().green("+ " + _("Recuperando ficheros borrados"))
-if extraer_solo_normales==False : 
-    num_total_ficheros=Sleuthkit().crear_listado_ficheros_borrados(dir_tmp+'/recuperaparticion.listaficherosborrados',path_imagen)
-    puntnumerototalficheros=num_total_ficheros
-    f=file(dir_tmp+'/recuperaparticion.listaficherosborrados',"r")
-    while True:            
-        linea=f.readline()
-        if linea=='':
-            break
-        if usar_nsrl==True:
-            if Sleuthkit().recupera_fichero_sino_nsrl(dir_borrados,path_imagen,linea[:-1])==True:
-                num_recuperados=num_recuperados+1
-            puntnumerototalficheros=puntnumerototalficheros-1
-            cadena= _(u"  - Borrados. Quedan ") + str(puntnumerototalficheros) + _(u" de ") + str(num_total_ficheros) + _(". [ Recuperados: ")+Color().green(str(num_recuperados))+_(u"   NSRL: ")+Color().green(str(num_positivos_nsrl))+_(u" ]. [ Recuperados: ")+Color().green(str(num_recuperados))+_(u"   NSRL: ")+Color().green(str(num_positivos_nsrl))+_(u" ]. T.Est: ") + segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial))
-        else:
-            if Sleuthkit().recupera_fichero(dir_borrados,path_imagen,linea[:-1])==True:
-                num_recuperados=num_recuperados+1
-            puntnumerototalficheros=puntnumerototalficheros-1
-            cadena= _(u"  - Borrados. Quedan ") + str(puntnumerototalficheros) + _(u" de ") + str(num_total_ficheros) + _(". [ Recuperados: ")+Color().green(str(num_recuperados))+_(u" ]. T.Est: ") + Color().yellow(segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial))) + "  "
-        sys.stdout.write("\b"*(len(cadena)+5)) 
-        sys.stdout.write (cadena)   
-        sys.stdout.flush()  
-    print ""
+for linea in fls:
+    if options.nsrl==True:
+        sys.stdout.write ("No desarrollado todavía")
+    else:
+        if Sleuthkit().icat(linea[:-1])==True:
+            num_recuperados=num_recuperados+1
+        puntnumerototalficheros=puntnumerototalficheros-1
+        cadena= _(u"  - Quedan ") + str(puntnumerototalficheros) + _(u" de ") + str(num_total_ficheros) + _(u". [ Recuperados: ")+Color().green(str(num_recuperados))+_(u" ]. T.Est: ") + Color().yellow(segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial)) ) + "  "
         
-print Color().green("+ "+ _("Generando imagen dd de los clusters sin asignar"))
-EspacioSinAsignar().GeneraImagenDD(path_imagen, dir_salida +_('csa')+'.dd' )
+        
+    sys.stdout.write("\b"*(len(cadena)+5)) 
+    sys.stdout.write (cadena)   
+    sys.stdout.flush()  
 
-os.system('foremost -o '+ dir_foremost+ ' -i ' +  dir_salida +_('csa')+'.dd')
+if options.csa==True:
+    print Color().green("+ "+ _("Generando imagen dd de los clusters sin asignar"))
+    Sleuthkit().blkls(options.partition, options.output +_('csa')+'.dd' )
+    
+    os.system('foremost -o '+ dir_uac+ ' -i ' +  options.output +_('csa')+'.dd')
+log.close()
+print 
 
-#comando='rm ' + dir_salida +_('csa')+'.dd'
-#os.system(comando)
+##IMPRIME FICHERO FLS
+f=open(options.output + "/recovermypartition.sleuthkit", "w")
+for line in fls:
+    f.write(line)
+f.close()
 
-comando='rm ' +dir_tmp +'/recuperaparticion.listaficheros'
-os.system(comando)
-
-comando='rm ' +dir_tmp +'/recuperaparticion.listaficherosborrados'
-os.system(comando)
+##MUESTRA TIEMPO DEL PROCESO
+print (Color().green("+ "+_("El proceso ha durado" + " "+segundos2fechastring(time.time()-tiempo_contador_parcial) )))
