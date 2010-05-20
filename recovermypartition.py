@@ -65,14 +65,14 @@ class Color:
     def darkred(self, text):
         return self.codes["darkred"]+text+self.codes["reset"]
 
-
-def endslash (path):
-    """Esta función hace que el path pasado como parametro acabe en una barra
-    Por ejemplo endslash('/home/pepe') devuelve /home/pepe/"""
-    if path[len(path)-1]=="/":
-        return path
-    else:
-        return path +"/"
+#
+#def endslash (path):
+#    """Esta función hace que el path pasado como parametro acabe en una barra
+#    Por ejemplo endslash('/home/pepe') devuelve /home/pepe/"""
+#    if path[len(path)-1]=="/":
+#        return path
+#    else:
+#        return path +"/"
 
 
 def contador(puntpasosdesdecero, totalpasos, tiempo_inicio_contador_parcial):
@@ -117,31 +117,35 @@ class Sleuthkit:
             Si el inodo vale 0 devuelve None
             file_type inode file_name mod_time acc_time chg_time cre_time size uid gid
         """
-        atributos={}
-        atributos['reallocated']=False
-	atributos['deleted']=False
+        arr={}
+        arr['reallocated']=False
+        arr['deleted']=False
         if l.split(chr(9))[0].find("(realloc)")>-1:
-	    atributos['reallocated']=True
-	    atributos['deleted']=True
-	    atributos['inode']= l.split(chr(9))[0].split(" ")[2][:-10]
-	elif l.split(chr(9))[0].find("*")>-1:
-	    atributos['deleted']=True
-	    atributos['inode']= l.split(chr(9))[0].split(" ")[2][:-1]
-	else:
-	    atributos['inode']= l.split(chr(9))[0].split(" ")[1][:-1]
-        atributos['type_filename']=l[0]
-        atributos['type_metadata']=l[2]
-	if atributos['inode']==0:
+            arr['reallocated']=True
+            arr['deleted']=True
+            arr['inode']= l.split(chr(9))[0].split(" ")[2][:-10]
+        elif l.split(chr(9))[0].find("*")>-1:
+            arr['deleted']=True
+            arr['inode']= l.split(chr(9))[0].split(" ")[2][:-1]
+        else:
+            arr['inode']= l.split(chr(9))[0].split(" ")[1][:-1]
+        arr['type_filename']=l[0]
+        arr['type_metadata']=l[2]
+        if arr['inode']==0:
             return None
-        atributos['file_name']=l.split(chr(9))[1]
-        atributos['mod_time']=string2time(l.split(chr(9))[2])
-        atributos['acc_time']=string2time(l.split(chr(9))[3])
-        atributos['chg_time']=string2time(l.split(chr(9))[4])
-        atributos['cre_time']=string2time(l.split(chr(9))[5])
-        atributos['size']=int(l.split(chr(9))[6])
-        atributos['uid']=int(l.split(chr(9))[7])
-        atributos['gid']=int(l.split(chr(9))[8])
-        return atributos
+        arr['file_name']=l.split(chr(9))[1]
+        arr['mod_time']=string2time(l.split(chr(9))[2])
+        arr['acc_time']=string2time(l.split(chr(9))[3])
+        arr['chg_time']=string2time(l.split(chr(9))[4])
+        arr['cre_time']=string2time(l.split(chr(9))[5])
+        arr['size']=int(l.split(chr(9))[6])
+        arr['uid']=int(l.split(chr(9))[7])
+        arr['gid']=int(l.split(chr(9))[8])
+        
+        ##Curiosidades
+        if arr['file_name']=="$OrphanFiles" and arr['type_filename']=="d":
+            arr['deleted']=True
+        return arr
     
     def blkls(self, path_evidencia ,  path_salida_dd):
         """
@@ -169,42 +173,47 @@ class Sleuthkit:
             
             Devuelve un booleano si ha tenido exito o no la recuperacion
         """
-        dic_atr=self.fls2arr(lineasleuthkit)
-        if dic_atr==None:
+        def salida():
+            if arr['type_filename']=="v":
+                return options.output+ arr['file_name']
+            if arr['deleted']==True:
+                return dir_deleted+ arr['file_name']
+            else:
+                return dir_files+ arr['file_name']
+
+        arr=self.fls2arr(lineasleuthkit)
+        if arr==None:
             return False
-        if dic_atr['type_filename']=="r" or dic_atr['type_filename']=="l" or dic_atr['type_filename']=="-" or dic_atr['type_filename']=="v":
-            salida=dir_files+ dic_atr['file_name']#path2sleuthkit
+            
+        if arr['type_filename']=="d":       
             try:
-                os.makedirs(os.path.dirname(salida))
+                os.makedirs(salida())
+            except OSError:
+                pass            
+        else:
+            try:
+                os.makedirs(os.path.dirname(salida()))
             except OSError:
                 pass
-            p = Popen('icat -r ' + options.partition + ' ' +str(dic_atr['inode']) +" > /tmp/recovermypartition", shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
+            p = Popen('icat -r ' + options.partition + ' ' +str(arr['inode']) +" > /tmp/recovermypartition", shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
             error=p.stderr.read()[:-1]
             if len(error)>0:
-                log.write (str(datetime.datetime.now()) + "\t" +  lineasleuthkit.split(chr(9))[0]+ "\t"+ salida+ "\ticat. " +  error + "\n")            
-            os.rename ("/tmp/recovermypartition",  salida)
-        elif dic_atr['type_filename']=="d":       
-            salida=dir_deleted+ dic_atr['file_name']#path2sleuthkit     
-            try:
-                os.makedirs(salida)
-            except OSError:
-                pass
-        else:
-            log.write (str(datetime.datetime.now()) + "\t" +  lineasleuthkit.split(chr(9))[0]+ "\t"+ salida+ "\tFichero tipo " +  dic_atr['type_filename'] + "\n")
-            return False
+                log.write (str(datetime.datetime.now()) + "\t" +  lineasleuthkit.split(chr(9))[0]+ "\t"+ salida()+ "\ticat. " +  error + "\n")            
+            os.rename ("/tmp/recovermypartition",  salida())
+
 
         try:
-            accesed=calendar.timegm(dic_atr['acc_time'])
+            accesed=calendar.timegm(arr['acc_time'])
         except:
-            log.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida+ "\tNo se ha podido modificar la fecha de acceso\n" )
+            log.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida()+ "\tNo se ha podido modificar la fecha de acceso\n" )
             accesed=0
     
         try:
             modified=calendar.timegm(dic_atr['mod_time'])
         except:
-            log.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida+ "\tNo se ha podido modificar la fecha de modificación\n")
+            log.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida()+ "\tNo se ha podido modificar la fecha de modificación\n")
             modified=0
-        os.utime(salida,(accesed,modified))
+        os.utime(salida(),(accesed,modified))
         return True
 
     
@@ -240,16 +249,16 @@ except OSError:
     print (_("Ha habido problemas al crear los directorios de salida. Compruebe que no existe"))
     sys.exit()
     
-log=open(options.output+"recoverymypartition.log", "w")
+log=open(options.output+"recovermypartition.log", "w")
     
 if options.nofiles==False and options.nodeleted==False:
-    print (Color().red(_(u"Extrae todos los ficheros, incluidos borrados")))
+    print (Color().red(_(u"Generando lista para todos los ficheros, incluidos borrados")))
     fls=os.popen("fls -prl " + options.partition ).readlines()
 elif options.nofiles==True and options.nodeleted==False:
-    print (Color().red(_(u"Solo extrae los ficheros borrados")))
+    print (Color().red(_(u"Generando lista sólo para ficheros borrados")))
     fls=os.popen("fls -prdl " + options.partition ).readlines()
 elif options.nofiles==False and options.nodeleted==True:
-    print (Color().red(_(u"Solo extrae los ficheros normales")))
+    print (Color().red(_(u"Generando lista sólo para ficheros normales")))
     fls=os.popen("fls -prul " + options.partition ).readlines()
     
 print (Color().fuchsia(_(u"Particion o imagen a analizar")+": ") + options.partition)
