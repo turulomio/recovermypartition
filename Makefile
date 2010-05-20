@@ -4,7 +4,10 @@ PREFIXBIN=$(DESTDIR)/usr/bin
 PREFIXPO=$(DESTDIR)/usr/share/locale
 PREFIXSHARE=$(DESTDIR)/usr/share/recovermypartition 
 
-install: 
+
+install:
+	echo "Translating" 
+	cd po; bash ./translate;cd ..
 	echo "Instalando en ${DESTDIR}"
 	install -o root -d $(PREFIXBIN)
 	install -o root -d $(PREFIXPO)

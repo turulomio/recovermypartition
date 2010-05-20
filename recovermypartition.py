@@ -64,21 +64,14 @@ class Color:
         return self.codes["darkred"]+text+self.codes["reset"]
 
 
-def barrapath (path,poner):
-    """Esta función pone o quita de un path la barra de fin de directorio dependiendo del parametro poner
-        
-    Por ejemplo barrapath('/home/pepe', True) devuelve /home/pepe/
-    """
-    if poner==True:
-        if path[len(path)-1]=="/":
-            return path
-        else:
-            return path +"/"
-    else:#Poner False
-        if path[len(path)-1]=="/":
-            return path[:-1]
-        else:
-            return path   
+def endslash (path):
+    """Esta función hace que el path pasado como parametro acabe en una barra
+    Por ejemplo endslash('/home/pepe') devuelve /home/pepe/"""
+    if path[len(path)-1]=="/":
+        return path
+    else:
+        return path +"/"
+
 
 def contador(puntpasosdesdecero, totalpasos, tiempo_inicio_contador_parcial):
     """
@@ -106,6 +99,7 @@ def path2sleuthkit(cadena):
     for caracter in todelete:
         cadena=string.replace(cadena,caracter,'_')
     return cadena
+
 def segundos2fechastring(segundos):
     dias=int(segundos)/int(24*60*60)
     segundosquedan=math.fmod(segundos,24*60*60)
@@ -116,6 +110,13 @@ def segundos2fechastring(segundos):
     segundos=int(segundosquedan)
     return str(dias)+ "d "+ str(horas) + "h " + str(minutos) + "m " + str(segundos) +"s"
 
+def string2time(cadena):
+    try:
+        t= time.strptime(cadena,"%Y-%m-%d %H:%M:%S (%Z)")
+    except:
+        return None
+    return t 
+  
 def ayuda():
     print "recoverpartition [opciones] -p dispositivofisico|imagen.dd"
     print "  Brief: Recupera los ficheros, los ficheros borrados de una particion"
@@ -149,63 +150,37 @@ class EspacioSinAsignar:
         comando='blkls -s %s  > %s'%(path_evidencia, path_salida_dd)
         sal=os.popen(comando)
         
-class Fichero:
-    def modificar_atributos(self, arrAtributos,path):
-        """
-            Ojo el path es donde esta el fichero no el path relativo arrAtributos['path']
-            Modificamos el fichero real, pasado como paronetro con los atributos de fichero recibidos
-        """
-        try:        
-            struct_accesed=time.strptime(arrAtributos['accesed'],"%Y-%m-%d %H:%M:%S")
-            struct_modified=time.strptime(arrAtributos['modified'],"%Y-%m-%d %H:%M:%S")
-            accesed=calendar.timegm(struct_accesed)
-            modified=calendar.timegm(struct_modified)
-            os.utime(path,(accesed,modified))
-        except :
-            print "\n     "+Color().red(u"-")+" "+Color().red(_(u"Problema al modificar los atributos del fichero '")+path + "'")
-            pass
-            
 class Sleuthkit:      
-    def atributos_desde_linea_sleuthkit(self,lineasleut):
+    def atributos_desde_linea_sleuthkit(self,l):
         """
             Si el inodo vale 0 devuelve None
+            file_type inode file_name mod_time acc_time chg_time cre_time size uid gid
         """
         atributos={}
-        arr=string.split(lineasleut,chr(9))#split con tabulador
-        arrInodo=string.split(arr[0]," ")
-        arrPath=string.split(arr[1]," ")
-        #Saca inodo
-        arrInodoSinParentesis=string.split(arrInodo[len(arrInodo)-1],"(")
-        if len(arrInodoSinParentesis)==1:
-            inodo=arrInodo[len(arrInodo)-1][:-1]
-        else:
-            inodo=arrInodoSinParentesis[0]
-        atributos['inodo']=inodo    
-        if inodo=="0":
+        atributos['reallocated']=False
+	atributos['deleted']=False
+        if l.split(chr(9))[0].find("(realloc)")>-1:
+	    atributos['reallocated']=True
+	    atributos['deleted']=True
+	    atributos['inode']= l.split(chr(9))[0].split(" ")[2][:-10]
+	elif l.split(chr(9))[0].find("*")>-1:
+	    atributos['deleted']=True
+	    atributos['inode']= l.split(chr(9))[0].split(" ")[2][:-1]
+	else:
+	    atributos['inode']= l.split(chr(9))[0].split(" ")[1][:-1]
+        atributos['type_filename']=l[0]
+        atributos['type_metadata']=l[2]
+	if atributos['inode']==0:
             return None
-
-        #Saca path
-        path=""        
-        if len (arrPath)>1:
-            if  arrPath[len(arrPath)-1][0]=='(':
-                for i in range(0,len(arrPath)-1):
-                    path=path+arrPath[i] +" "
-            else:
-                for i in range(0,len(arrPath)):
-                    path=path+arrPath[i]+ " "
-            path=path[:-1]
-        else:
-            path=arrPath[0]
-        atributos['path']=path
-        f_mod=string.split(arr[2]," ")
-        f_acc=string.split(arr[3]," ")
-        f_crea=string.split(arr[4]," ")
-        size=arr[6]
-        atributos['modified']=string.join(f_mod[:-1])
-        atributos['accesed']=string.join(f_acc[:-1])
-        atributos['written']=string.join(f_crea[:-1])
-        atributos['size']=int(size)
-        
+        atributos['file_name']=l.split(chr(9))[1]
+        atributos['mod_time']=string2time(l.split(chr(9))[2])
+        atributos['acc_time']=string2time(l.split(chr(9))[3])
+        atributos['chg_time']=string2time(l.split(chr(9))[4])
+        atributos['cre_time']=string2time(l.split(chr(9))[5])
+        atributos['size']=int(l.split(chr(9))[6])
+        atributos['uid']=int(l.split(chr(9))[7])
+        atributos['gid']=int(l.split(chr(9))[8])
+        #print str(l) + str(atributos)
         return atributos
     
     def crear_listado_ficheros(self , path_salida, path_imagen):
@@ -242,20 +217,40 @@ class Sleuthkit:
             
             Devuelve un booleano si ha tenido exito o no la recuperacion
         """
-        dic_atr=Sleuthkit().atributos_desde_linea_sleuthkit(lineasleut)
+        dic_atr=self.atributos_desde_linea_sleuthkit(lineasleut)
         if dic_atr==None:
             return False
-        pathsincomillas=path2sleuthkit(dic_atr['path'])
-        comando= 'icat -r ' + enlacefisico + ' ' +dic_atr['inodo'] +' > ' + directoriocreacion+ '/generandoficheroconicat '
+        salida=directoriocreacion+ path2sleuthkit(dic_atr['file_name'])
+        #print salida, dic_atr
+        #pathsincomillas=path2sleuthkit(dic_atr['file_name'])
+        if dic_atr['type_filename']=="r" or dic_atr['type_filename']=="l" or dic_atr['type_filename']=="-":
+            try:
+                os.makedirs(os.path.dirname(salida))
+            except OSError:
+                pass
+            comando= 'icat -r ' + enlacefisico + ' ' +str(dic_atr['inode'])
+            fichero=os.popen('icat -r ' + enlacefisico + ' ' +str(dic_atr['inode'])).read()
+            f=open(salida,"w")
+            f.write(fichero)
+            f.close()
+        elif dic_atr['type_filename']=="d":
+	    os.makedirs(os.path.dirname(salida))
+	else:
+	    print "\nFichero tipo ",  dic_atr['type_filename'], salida
+	    return False
 
-        resultado=os.system(comando)
-        try:
-            os.makedirs(directoriocreacion+'/'+os.path.dirname(pathsincomillas))
-        except OSError:
-            pass     
-        comando='mv ' + directoriocreacion+ '/generandoficheroconicat '+ directoriocreacion+'/'+path2shell(pathsincomillas)
-        os.system (comando)   
-        Fichero().modificar_atributos(dic_atr, directoriocreacion+'/'+pathsincomillas ) 
+	try:
+            accesed=calendar.timegm(dic_atr['acc_time'])
+        except:
+	    print "    - No se ha podido modificar la fecha de acceso de " + 
+	    accesed=0
+	try:
+            modified=calendar.timegm(dic_atr['mod_time'])
+	    print "    - No se ha podido modificar la fecha de modificación de " + str(dic_atr)
+        except:
+	    modified=0
+	os.utime(salida,(accesed,modified))
+ 
         return True
 
 
@@ -305,7 +300,7 @@ for o,a in opts:
         extraer_solo_normales=True
         
     if o == '-o':
-        dir_tmp=barrapath(a,True)
+        dir_tmp=endslash(a)
 
     if o== '-n':
         usar_nsrl=True
@@ -321,20 +316,20 @@ if extraer_solo_borrados==True and extraer_solo_normales==True:
     extraer_solo_normales=False            
 
 if dir_tmp==None:
-    dir_tmp=barrapath(os.getcwd(),True)
+    dir_tmp=endslash(os.getcwd())
 
 try:
-    dir_salida=dir_tmp+"/output/"#Cadena con el directorio raiz donde se genera todo.
-    dir_ficheros=dir_salida+'/'+_('Ficheros')+'/'
-    dir_borrados=dir_salida+'/'+_('Borrados')+'/'
-    dir_csa=dir_salida+'/'+_('CSA')+'/'
-    dir_foremost=dir_salida+'/'+_('CSA')+'/'
+    dir_salida=dir_tmp+"output/"#Cadena con el directorio raiz donde se genera todo.
+    dir_ficheros=dir_salida+_('Ficheros')+'/'
+    dir_borrados=dir_salida+_('Borrados')+'/'
+    dir_csa=dir_salida+_('CSA')+'/'
+    dir_foremost=dir_salida+_('CSA')+'/'
     os.makedirs(dir_salida)
     os.makedirs(dir_ficheros)
     os.makedirs(dir_borrados)
     os.makedirs(dir_csa)
 except OSError:
-    print _("Ha habido problemas al crear los directorios de salida")
+    print _("Ha habido problemas al crear los directorios de salida. Compruebe que no existe")
     sys.exit()
     
 if extraer_solo_normales==True:

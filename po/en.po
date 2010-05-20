@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: recovermypartition 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-18 21:20+0200\n"
+"POT-Creation-Date: 2010-05-20 16:35+0200\n"
 "PO-Revision-Date: 2010-05-18 21:06+0200\n"
 "Last-Translator: root <turulomio@yahoo.es>\n"
 "Language-Team: Spanish\n"
@@ -17,89 +17,88 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../recovermypartition.py:165
-msgid "Problema al modificar los atributos del fichero '"
-msgstr ""
-
-#: ../recovermypartition.py:289
+#: ../recovermypartition.py:284
 msgid "Error en la lectura de argumentos"
 msgstr ""
 
-#: ../recovermypartition.py:328
+#: ../recovermypartition.py:323
 msgid "Ficheros"
 msgstr "Files"
 
-#: ../recovermypartition.py:329
+#: ../recovermypartition.py:324
 msgid "Borrados"
 msgstr "Deleted"
 
-#: ../recovermypartition.py:330 ../recovermypartition.py:331
+#: ../recovermypartition.py:325 ../recovermypartition.py:326
 msgid "CSA"
 msgstr "UAC"
 
-#: ../recovermypartition.py:337
-msgid "Ha habido problemas al crear los directorios de salida"
+#: ../recovermypartition.py:332
+#, fuzzy
+msgid ""
+"Ha habido problemas al crear los directorios de salida. Compruebe que no "
+"existe"
 msgstr "Error creating output directories"
 
-#: ../recovermypartition.py:341
+#: ../recovermypartition.py:336
 msgid "Solo extrae los ficheros normales"
 msgstr ""
 
-#: ../recovermypartition.py:343
+#: ../recovermypartition.py:338
 msgid "Solo extrae los ficheros borrados"
 msgstr ""
 
-#: ../recovermypartition.py:347
+#: ../recovermypartition.py:342
 msgid "Particion o imagen a analizar"
 msgstr "Partition or image to analyze"
 
-#: ../recovermypartition.py:348
+#: ../recovermypartition.py:343
 msgid "Directorio de salida"
 msgstr "Output directory"
 
-#: ../recovermypartition.py:352
+#: ../recovermypartition.py:347
 msgid "Recuperando el sistema de ficheros"
 msgstr ""
 
-#: ../recovermypartition.py:365 ../recovermypartition.py:370
+#: ../recovermypartition.py:360 ../recovermypartition.py:365
 msgid "  - Normales. Quedan "
 msgstr ""
 
-#: ../recovermypartition.py:365 ../recovermypartition.py:370
-#: ../recovermypartition.py:392 ../recovermypartition.py:397
+#: ../recovermypartition.py:360 ../recovermypartition.py:365
+#: ../recovermypartition.py:387 ../recovermypartition.py:392
 msgid " de "
 msgstr ""
 
-#: ../recovermypartition.py:365 ../recovermypartition.py:370
-#: ../recovermypartition.py:392 ../recovermypartition.py:397
+#: ../recovermypartition.py:360 ../recovermypartition.py:365
+#: ../recovermypartition.py:387 ../recovermypartition.py:392
 msgid ". [ Recuperados: "
 msgstr ""
 
-#: ../recovermypartition.py:365 ../recovermypartition.py:392
+#: ../recovermypartition.py:360 ../recovermypartition.py:387
 msgid "   NSRL: "
 msgstr ""
 
-#: ../recovermypartition.py:365 ../recovermypartition.py:370
-#: ../recovermypartition.py:392 ../recovermypartition.py:397
+#: ../recovermypartition.py:360 ../recovermypartition.py:365
+#: ../recovermypartition.py:387 ../recovermypartition.py:392
 msgid " ]. T.Est: "
 msgstr ""
 
-#: ../recovermypartition.py:379
+#: ../recovermypartition.py:374
 msgid "Recuperando ficheros borrados"
 msgstr ""
 
-#: ../recovermypartition.py:392 ../recovermypartition.py:397
+#: ../recovermypartition.py:387 ../recovermypartition.py:392
 msgid "  - Borrados. Quedan "
 msgstr ""
 
-#: ../recovermypartition.py:392
+#: ../recovermypartition.py:387
 msgid " ]. [ Recuperados: "
 msgstr ""
 
-#: ../recovermypartition.py:403
+#: ../recovermypartition.py:398
 msgid "Generando imagen dd de los clusters sin asignar"
 msgstr ""
 
-#: ../recovermypartition.py:404 ../recovermypartition.py:406
+#: ../recovermypartition.py:399 ../recovermypartition.py:401
 msgid "csa"
 msgstr ""
