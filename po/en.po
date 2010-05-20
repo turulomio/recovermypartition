@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: recovermypartition 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-20 22:50+0200\n"
+"POT-Creation-Date: 2010-05-20 23:27+0200\n"
 "PO-Revision-Date: 2010-05-18 21:06+0200\n"
 "Last-Translator: root <turulomio@yahoo.es>\n"
 "Language-Team: Spanish\n"
@@ -16,6 +16,42 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../recovermypartition.py:208
+msgid "No se ha podido modificar la fecha de acceso"
+msgstr "Unable to clone access time"
+
+#: ../recovermypartition.py:214
+msgid "No se ha podido modificar la fecha de modificación"
+msgstr "Unable to clone modification time"
+
+#: ../recovermypartition.py:231
+msgid "Recupera los ficheros, los ficheros borrados de una particion"
+msgstr "Recover files, deleted files of a partition"
+
+#: ../recovermypartition.py:232
+msgid "No extrae ficheros normales"
+msgstr "Doesn't extract normal files"
+
+#: ../recovermypartition.py:233
+msgid "No extrae ficheros borrados"
+msgstr "Doesn't extract deleted files"
+
+#: ../recovermypartition.py:234
+msgid "Analiza los clusters sin asignar con foremost"
+msgstr "Check Unassigened clusters with foremost"
+
+#: ../recovermypartition.py:235
+msgid "Chequea contra la base de datos nrsl"
+msgstr "Check against nrsl database"
+
+#: ../recovermypartition.py:236
+msgid "Partición o imagen a analizar"
+msgstr "Partition or image to analyze"
+
+#: ../recovermypartition.py:237
+msgid "Directorio de salida (Default output)"
+msgstr "Output directory (Default output)"
 
 #: ../recovermypartition.py:241
 msgid "Ficheros"
@@ -30,60 +66,81 @@ msgid "CSA"
 msgstr "UAC"
 
 #: ../recovermypartition.py:249
-#, fuzzy
-msgid ""
-"Ha habido problemas al crear los directorios de salida. Compruebe que no "
-"existe"
+msgid "Ha habido problemas al crear los directorios de salida. Compruebe que no existe"
 msgstr "Error creating output directories. Output directory must not exist"
 
 #: ../recovermypartition.py:255
+msgid "La recuperación comenzó"
+msgstr "Recovery started"
+
+#: ../recovermypartition.py:258
 msgid "Generando lista para todos los ficheros, incluidos borrados"
 msgstr "Creating files list, deleted included"
 
-#: ../recovermypartition.py:258
+#: ../recovermypartition.py:261
 msgid "Generando lista sólo para ficheros borrados"
 msgstr "Creating deleted file list"
 
-#: ../recovermypartition.py:261
+#: ../recovermypartition.py:264
 msgid "Generando lista sólo para ficheros normales"
 msgstr "Creating files list"
 
-#: ../recovermypartition.py:264
+#: ../recovermypartition.py:267
 msgid "Particion o imagen a analizar"
 msgstr "Partition or image to analyze"
 
-#: ../recovermypartition.py:265
+#: ../recovermypartition.py:268
 msgid "Directorio de salida"
 msgstr "Output directory"
 
-#: ../recovermypartition.py:271
-msgid "Recuperando "
-msgstr ""
+#: ../recovermypartition.py:273
+msgid "Recuperando"
+msgstr "Recovering"
 
-#: ../recovermypartition.py:280
+#: ../recovermypartition.py:273
+msgid "ficheros de la partición. Este proceso puede tardar bastante"
+msgstr "partition files. This process can take a long time"
+
+#: ../recovermypartition.py:277
+msgid "No desarrollado todavía"
+msgstr "Not developed yet"
+
+#: ../recovermypartition.py:282
 msgid "  - Quedan "
-msgstr ""
+msgstr "  - Rest "
 
-#: ../recovermypartition.py:280
+#: ../recovermypartition.py:282
 msgid " de "
-msgstr ""
+msgstr " of "
 
-#: ../recovermypartition.py:280
+#: ../recovermypartition.py:282
 msgid ". [ Recuperados: "
-msgstr ""
+msgstr ". [ Recovered: "
 
-#: ../recovermypartition.py:280
+#: ../recovermypartition.py:282
 msgid " ]. T.Est: "
-msgstr ""
+msgstr " ]. ETA: "
 
-#: ../recovermypartition.py:288
+#: ../recovermypartition.py:290
 msgid "Generando imagen dd de los clusters sin asignar"
-msgstr ""
+msgstr "Generating dd image of unassigned clusters"
 
-#: ../recovermypartition.py:289 ../recovermypartition.py:291
+#: ../recovermypartition.py:291 ../recovermypartition.py:293
 msgid "csa"
 msgstr "uac"
 
-#: ../recovermypartition.py:302
+#: ../recovermypartition.py:304
+msgid "La recuperación finalizó"
+msgstr "Recovery ends at"
+
+#: ../recovermypartition.py:305
+msgid "Número de ficheros analizados"
+msgstr "Analyzed files number"
+
+#: ../recovermypartition.py:306
+msgid "Número de ficheros recuperados"
+msgstr "Recovered files number"
+
+#: ../recovermypartition.py:311
 msgid "El proceso ha durado"
 msgstr "The process took"

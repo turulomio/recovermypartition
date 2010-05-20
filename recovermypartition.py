@@ -196,22 +196,22 @@ class Sleuthkit:
             except OSError:
                 pass
             p = Popen('icat -r ' + options.partition + ' ' +str(arr['inode']) +" > /tmp/recovermypartition", shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
-            error=p.stderr.read()[:-1]
-            if len(error)>0:
-                log.write (str(datetime.datetime.now()) + "\t" +  lineasleuthkit.split(chr(9))[0]+ "\t"+ salida()+ "\ticat. " +  error + "\n")            
+            strerror=p.stderr.read()[:-1]
+            if len(strerror)>0:
+                error.write (str(datetime.datetime.now()) + "\t" +  lineasleuthkit.split(chr(9))[0]+ "\t"+ salida()+ "\ticat. " +  strerror + "\n")            
             os.rename ("/tmp/recovermypartition",  salida())
 
 
         try:
             accesed=calendar.timegm(arr['acc_time'])
         except:
-            log.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida()+ "\tNo se ha podido modificar la fecha de acceso\n" )
+            error.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida()+ "\t"+_("No se ha podido modificar la fecha de acceso")+"\n" )
             accesed=0
     
         try:
             modified=calendar.timegm(dic_atr['mod_time'])
         except:
-            log.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida()+ "\tNo se ha podido modificar la fecha de modificación\n")
+            error.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida()+ "\t"+_("No se ha podido modificar la fecha de modificación")+"\n")
             modified=0
         os.utime(salida(),(accesed,modified))
         return True
@@ -226,15 +226,15 @@ def _(cadena):
 num_total_ficheros=0 # Numero de ficheros en la lista de recuperacion
 num_positivos_nsrl=0 #Numero de ficheros que dan positivo en nsrl
 num_recuperados=0
-version="20100518"
+version="20100520"
     
-parser = OptionParser(version=version,  description="Recupera los ficheros, los ficheros borrados de una particion")
-parser.add_option( "--no-files", action="store_true", default=False, dest="nofiles", help=u"No extrae ficheros normales")
-parser.add_option( "--no-deleted", action="store_true", default=False, dest="nodeleted", help=u"No extrae ficheros borrados")
-parser.add_option( "--csa", action="store_true", default=False, dest="csa", help=u"Analiza los clusters sin asignar con foremost")
-parser.add_option( "--nsrl", action="store_true", default=False, dest="nsrl", help=u"Chequea contra la base de datos nrsl")
-parser.add_option( "--partition", action="store", dest="partition", help=u"Partición o imagen a analizar")
-parser.add_option( "--output", action="store",  dest="output", default="output/",  help=u"Directorio de salida (Default output)")
+parser = OptionParser(version=version,  description=_("Recupera los ficheros, los ficheros borrados de una particion"))
+parser.add_option( "--no-files", action="store_true", default=False, dest="nofiles", help=_(u"No extrae ficheros normales"))
+parser.add_option( "--no-deleted", action="store_true", default=False, dest="nodeleted", help=_(u"No extrae ficheros borrados"))
+parser.add_option( "--csa", action="store_true", default=False, dest="csa", help=_(u"Analiza los clusters sin asignar con foremost"))
+parser.add_option( "--nsrl", action="store_true", default=False, dest="nsrl", help=_(u"Chequea contra la base de datos nrsl"))
+parser.add_option( "--partition", action="store", dest="partition", help=_(u"Partición o imagen a analizar"))
+parser.add_option( "--output", action="store",  dest="output", default="output/",  help=_(u"Directorio de salida (Default output)"))
 (options, args) = parser.parse_args()
 
 try:
@@ -249,7 +249,10 @@ except OSError:
     print (_("Ha habido problemas al crear los directorios de salida. Compruebe que no existe"))
     sys.exit()
     
-log=open(options.output+"recovermypartition.log", "w")
+error=open(options.output+"recovermypartition.error", "w")
+log=open(options.output + "/recovermypartition.log", "w")
+tiempo_contador_parcial=time.time()
+log.write(_("La recuperación comenzó") + ": " + str(datetime.datetime.now()) +"\n")
     
 if options.nofiles==False and options.nodeleted==False:
     print (Color().red(_(u"Generando lista para todos los ficheros, incluidos borrados")))
@@ -264,15 +267,14 @@ elif options.nofiles==False and options.nodeleted==True:
 print (Color().fuchsia(_(u"Particion o imagen a analizar")+": ") + options.partition)
 print (Color().fuchsia(_(u"Directorio de salida")+":          ") + options.output)
 
-tiempo_contador_parcial=time.time()
 num_total_ficheros=len(fls)
 puntnumerototalficheros=num_total_ficheros
 
-print (Color().green("+ "+_("Recuperando "+  str(num_total_ficheros) +" ficheros de la partición. Este proceso puede tardar bastante")))
+print (Color().green("+ "+_("Recuperando")+ " " +  str(num_total_ficheros) + " " + _(u"ficheros de la partición. Este proceso puede tardar bastante")))
 
 for linea in fls:
     if options.nsrl==True:
-        sys.stdout.write ("No desarrollado todavía")
+        sys.stdout.write (_("No desarrollado todavía"))
     else:
         if Sleuthkit().icat(linea[:-1])==True:
             num_recuperados=num_recuperados+1
@@ -285,18 +287,25 @@ for linea in fls:
     sys.stdout.flush()  
 
 if options.csa==True:
-    print Color().green("+ "+ _("Generando imagen dd de los clusters sin asignar"))
+    print Color().green("\n+ "+ _("Generando imagen dd de los clusters sin asignar"))
     Sleuthkit().blkls(options.partition, options.output +_('csa')+'.dd' )
     
     os.system('foremost -o '+ dir_uac+ ' -i ' +  options.output +_('csa')+'.dd')
-log.close()
+error.close()
 print 
 
-##IMPRIME FICHERO FLS
+##CREA FICHERO SLEUTHKIT
 f=open(options.output + "/recovermypartition.sleuthkit", "w")
 for line in fls:
     f.write(line)
 f.close()
 
+##CREA FICHERO LOG
+log.write(_("La recuperación finalizó") + ": " + str(datetime.datetime.now()) +"\n")
+log.write(_("Número de ficheros analizados") + ": " + str(len(fls)) +"\n")
+log.write(_("Número de ficheros recuperados") + ": " + str(num_recuperados) +"\n")
+log.close()
+
+
 ##MUESTRA TIEMPO DEL PROCESO
-print (Color().green("+ "+_("El proceso ha durado" + " "+segundos2fechastring(time.time()-tiempo_contador_parcial) )))
+print (Color().green("+ "+_("El proceso ha durado" )+ " "+segundos2fechastring(time.time()-tiempo_contador_parcial) ))

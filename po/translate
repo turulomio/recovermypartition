@@ -1,7 +1,7 @@
 xgettext --no-wrap -o recovermypartition.pot ../recovermypartition.py
 #msginit --output-file en.po #para nueva traducción
-msgmerge -U en.po recovermypartition.pot
-msgmerge -U es.po recovermypartition.pot
+msgmerge -N --no-wrap -U en.po recovermypartition.pot 
+msgmerge -N --no-wrap -U es.po recovermypartition.pot 
 msgfmt -cv -o en.mo en.po
 msgfmt -cv -o es.mo es.po
 
