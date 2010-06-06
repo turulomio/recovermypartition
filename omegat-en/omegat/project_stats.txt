@@ -1,0 +1,29 @@
+Estadísticas del proyecto
+
+Total:
+	Segmentos	13
+	Palabras	37
+	Caracteres (sin espacios)	364
+	Caracteres (con espacios)	392
+Únicos pendientes:
+	Segmentos	0
+	Palabras	0
+	Caracteres (sin espacios)	0
+	Caracteres (con espacios)	0
+Únicos:
+	Segmentos	12
+	Palabras	37
+	Caracteres (sin espacios)	342
+	Caracteres (con espacios)	370
+Únicos pendientes:
+	Segmentos	0
+	Palabras	0
+	Caracteres (sin espacios)	0
+	Caracteres (con espacios)	0
+
+Estadísticas por archivo:
+
+Nombre de archivo	Palabras en total	Palabras pendientes	Caracteres en total (sin espacios)	Caracteres pendientes (sin espacios)	Caracteres en total (con espacios)	Caracteres pendientes (con espacios)
+CHANGELOG-ES	13	0	149	0	160	0
+INSTALL-ES	13	0	99	0	108	0
+RELEASES-ES	11	0	116	0	124	0

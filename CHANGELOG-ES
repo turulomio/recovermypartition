@@ -1,0 +1,7 @@
+recovermypartition 0.2
+======================
+- Solucionado error si no se declaraba --partition
+
+recovermypartition 0.1
+======================
+- Funcionalidad básica
