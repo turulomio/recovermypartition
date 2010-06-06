@@ -94,6 +94,14 @@
     </tu>
     <tu>
       <tuv xml:lang="ES">
+        <seg>- Se ha añadido soporte internacional para la documentación con omegat</seg>
+      </tuv>
+      <tuv xml:lang="EN-GB">
+        <seg>- International support has been added with omegat</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="ES">
         <seg>recovermypartition 0.1</seg>
       </tuv>
       <tuv xml:lang="EN-GB">

@@ -1,0 +1,12 @@
+Nueva release
+=============
+1) Modificar todos los ficheros RELEASE CHANGELOG con num subersion +1
+2) Traducirlos con omegat
+3) Ejecutar omegat-integration
+4) Subir al subversion y comprobar que queda subversion +1
+5) Crear el fichero .tar.gz y subirlo a sourceforge
+6) Crear un nuevo ebuild con la nueva versión
+7) Modificarlo
+8) Subirlo al subversión
+9) Modificar la pagina web
+10) Comprobar enlaces

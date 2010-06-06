@@ -1,6 +1,7 @@
 recovermypartition 0.2
 ======================
 - Solucionado error si no se declaraba --partition
+- Se ha añadido soporte internacional para la documentación con omegat
 
 recovermypartition 0.1
 ======================
