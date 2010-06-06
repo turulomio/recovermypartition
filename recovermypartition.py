@@ -254,6 +254,10 @@ log=open(options.output + "/recovermypartition.log", "w")
 tiempo_contador_parcial=time.time()
 log.write(_("La recuperación comenzó") + ": " + str(datetime.datetime.now()) +"\n")
     
+if options.partition==None:
+    print (_("No se ha especificado la partición"))
+    sys.exit(190)
+
 if options.nofiles==False and options.nodeleted==False:
     print (Color().red(_(u"Generando lista para todos los ficheros, incluidos borrados")))
     fls=os.popen("fls -prl " + options.partition ).readlines()
