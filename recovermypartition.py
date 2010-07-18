@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*- 
+# -*- coding: UTF-8 -*-
+
 import os, sys, time,  string,  math,  calendar,  datetime
 from subprocess import *
 from optparse import OptionParser
@@ -205,13 +206,13 @@ class Sleuthkit:
         try:
             accesed=calendar.timegm(arr['acc_time'])
         except:
-            error.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida()+ "\t"+_("No se ha podido modificar la fecha de acceso")+"\n" )
+            error.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida()+ "\t"+_("No se ha podido recuperar la fecha de acceso")+"\n" )
             accesed=0
     
         try:
             modified=calendar.timegm(dic_atr['mod_time'])
         except:
-            error.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida()+ "\t"+_("No se ha podido modificar la fecha de modificación")+"\n")
+            error.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida()+ "\t"+_("No se ha podido recuperar la fecha de modificación")+"\n")
             modified=0
         os.utime(salida(),(accesed,modified))
         return True
@@ -228,7 +229,7 @@ num_positivos_nsrl=0 #Numero de ficheros que dan positivo en nsrl
 num_recuperados=0
 version="0.2"
     
-parser = OptionParser(version=version,  description=_("Recupera los ficheros, los ficheros borrados de una particion"))
+parser = OptionParser(version=version,  description=_(u"Recupera los ficheros, los ficheros borrados de una partición"))
 parser.add_option( "--no-files", action="store_true", default=False, dest="nofiles", help=_(u"No extrae ficheros normales"))
 parser.add_option( "--no-deleted", action="store_true", default=False, dest="nodeleted", help=_(u"No extrae ficheros borrados"))
 parser.add_option( "--csa", action="store_true", default=False, dest="csa", help=_(u"Analiza los clusters sin asignar con foremost"))
@@ -274,7 +275,7 @@ print (Color().fuchsia(_(u"Directorio de salida")+":          ") + options.outpu
 num_total_ficheros=len(fls)
 puntnumerototalficheros=num_total_ficheros
 
-print (Color().green("+ "+_("Recuperando")+ " " +  str(num_total_ficheros) + " " + _(u"ficheros de la partición. Este proceso puede tardar bastante")))
+print (Color().green(_("+ Recuperando {0} ficheros de la partición. Este proceso puede tardar bastante.").format(str(num_total_ficheros))))
 
 for linea in fls:
     if options.nsrl==True:

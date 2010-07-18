@@ -1,0 +1,28 @@
+#!/bin/bash
+DIR=recovermypartit-`cat recovermypartition.py | grep 'version="'| cut --delimiter='"'  -f 2`
+FILE=$DIR.tar.gz
+echo "Este script crea el fichero $FILE para ser subido al proyecto"
+
+mkdir $DIR
+mkdir $DIR/po
+cp      Makefile \
+        CHANGELOG-EN.txt \
+        CHANGELOG-ES.txt \
+        GPL-3.txt \
+        INSTALL-EN.txt \
+        INSTALL-ES.txt \
+        RELEASES-EN.txt \
+        RELEASES-ES.txt \
+        recovermypartition.py \
+        $DIR
+
+cp      po/en.po \
+        po/fr.po \
+        po/ru.po \
+        po/md.po \
+        po/recovermypartition.pot \
+        po/translate \
+        $DIR/po
+
+tar cvz $DIR -f $FILE
+rm -R $DIR
