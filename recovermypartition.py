@@ -226,7 +226,7 @@ def _(cadena):
 num_total_ficheros=0 # Numero de ficheros en la lista de recuperacion
 num_positivos_nsrl=0 #Numero de ficheros que dan positivo en nsrl
 num_recuperados=0
-version="0.2dev"
+version="0.2"
     
 parser = OptionParser(version=version,  description=_("Recupera los ficheros, los ficheros borrados de una particion"))
 parser.add_option( "--no-files", action="store_true", default=False, dest="nofiles", help=_(u"No extrae ficheros normales"))
