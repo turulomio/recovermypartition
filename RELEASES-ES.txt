@@ -1,0 +1,2 @@
+recovermypartition-0.1 <==>  svn -r 8 co https://recovermypartit.svn.sourceforge.net/svnroot/recovermypartit recovermypartit 
+
