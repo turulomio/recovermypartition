@@ -1,7 +1,8 @@
 recovermypartition 0.2
 ======================
-- Solved bug if --partition wasn't declared
-- International support has been added with omegat
+- Bug solved when you don't set --partition
+- Added international support for the documentation omegat
+- Project has changed internally
 
 recovermypartition 0.1
 ======================

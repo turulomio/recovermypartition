@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx SYSTEM "tmx14.dtd">
+<tmx version="1.4">
+  <header
+    creationtool="OmegaT+"
+    creationtoolversion="1.0"
+    segtype="sentence"
+    o-tmf="OmegaT+ TMX"
+    adminlang="en-US"
+    srclang="es"
+    datatype="plaintext"
+  >
+  </header>
+  <body>
+    <tu>
+      <tuv xml:lang="es">
+        <seg>recovermypartition-0.1 &lt;==&gt;  svn -r 8 co https://recovermypartit.svn.sourceforge.net/svnroot/recovermypartit recovermypartit</seg>
+      </tuv>
+      <tuv xml:lang="en">
+        <seg>recovermypartition-0.1 &lt;==&gt;  svn -r 8 co https://recovermypartit.svn.sourceforge.net/svnroot/recovermypartit recovermypartit</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="es">
+        <seg>Dependencias
+ 	Necesitas Sleuthkit, python, foremost
+Para instalar
+ 	# make install
+Para desinstalar
+ 	# make uninstall</seg>
+      </tuv>
+      <tuv xml:lang="en">
+        <seg>Dependences
+ 	You need Sleuthkit, python, foremost
+To install
+ 	# make install
+To uninstall
+ 	# make uninstall</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="es">
+        <seg>recovermypartition 0.2
+======================
+- Solucionado error si no se declaraba --partition
+- Se ha añadido soporte internacional para la documentación con omegat
+- Se ha cambiado la forma interna del proyecto</seg>
+      </tuv>
+      <tuv xml:lang="en">
+        <seg>recovermypartition 0.2
+======================
+- Bug solved when you don't set --partition
+- Added international support for the documentation omegat
+- Project has changed internally</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="es">
+        <seg>recovermypartition 0.1
+======================
+- Funcionalidad básica</seg>
+      </tuv>
+      <tuv xml:lang="en">
+        <seg>recovermypartition 0.1
+======================
+- Basic funcionality</seg>
+      </tuv>
+    </tu>
+  </body>
+</tmx>

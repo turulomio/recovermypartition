@@ -1,8 +1,0 @@
-recovermypartition 0.2
-======================
-- Solved bug if --partition wasn't declared
-- International support has been added with omegat
-
-recovermypartition 0.1
-======================
-- Basic funcionality

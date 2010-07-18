@@ -1,0 +1,6 @@
+Dependences
+ 	You need Sleuthkit, python, foremost
+To install
+ 	# make install
+To uninstall
+ 	# make uninstall

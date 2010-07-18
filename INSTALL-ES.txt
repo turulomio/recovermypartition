@@ -1,0 +1,6 @@
+Dependencias
+ 	Necesitas Sleuthkit, python, foremost
+Para instalar
+ 	# make install
+Para desinstalar
+ 	# make uninstall

@@ -1,0 +1,40 @@
+Mediciones del proyecto
+
+Total
+   Segmentos:       4
+    Palabras:      55
+  Caracteres:     476 :-espacios
+  Caracteres:     525 :+espacios
+
+Restantes
+   Segmentos:       0
+    Palabras:       0
+  Caracteres:       0 :-espacios
+  Caracteres:       0 :+espacios
+
+únicos
+   Segmentos:       4
+    Palabras:      55
+  Caracteres:     476 :-espacios
+  Caracteres:     525 :+espacios
+
+únicos restantes
+   Segmentos:       0
+    Palabras:       0
+  Caracteres:       0 :-espacios
+  Caracteres:       0 :+espacios
+
+Mediciones del documento
+
+    TW      RW      TCNS    RCNS    TC      RC     Documento
+      31       0     253       0     282       0 - CHANGELOG-EN.txt
+      13       0     107       0     119       0 - INSTALL-EN.txt
+      11       0     116       0     124       0 - RELEASES-EN.txt
+
+Clave
+    TW: Total palabras
+    RW: Palabras restantes
+  TCNS: Total caracteres :-espacios
+  RCNS: Caracteres restantes :-espacios
+    TC: Total caracteres
+    RC: Caracteres restantes
