@@ -1,6 +1,7 @@
 Nueva release
 =============
-1) Modificar todos los ficheros RELEASE CHANGELOG con num subersion +1
+1) Cambiar la versión en recovermypartition.py
+ ) Modificar todos los ficheros RELEASE CHANGELOG con num subersion +1
 2) Traducirlos con omegat
 3) Ejecutar omegat-integration
 4) Subir al subversion y comprobar que queda subversion +1
