@@ -1,3 +1,6 @@
+recovermypartition 0.3
+======================
+
 recovermypartition 0.2
 ======================
 - Solucionado error si no se declaraba --partition

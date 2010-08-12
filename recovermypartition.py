@@ -226,7 +226,7 @@ def _(cadena):
 num_total_ficheros=0 # Numero de ficheros en la lista de recuperacion
 num_positivos_nsrl=0 #Numero de ficheros que dan positivo en nsrl
 num_recuperados=0
-version="0.2"
+version="0.3"
     
 parser = OptionParser(version=version,  description=_(u"Recupera los ficheros, los ficheros borrados de una partición"))
 parser.add_option( "--no-files", action="store_true", default=False, dest="nofiles", help=_(u"No extrae ficheros normales"))
@@ -273,11 +273,7 @@ print (Color().fuchsia(_(u"Directorio de salida")+":          ") + options.outpu
 
 num_total_ficheros=len(fls)
 puntnumerototalficheros=num_total_ficheros
-problemtranslate= _(" ficheros de la partición. Este proceso puede tardar bastante.")
-#recovering=_("+ Recuperando ")+ str(num_total_ficheros) + problemtranslate
-#print (Color().green(recovering))
-#print (Color().green(_("+ Recuperando {0} ficheros de la partición. Este proceso puede tardar bastante.".format(str(num_total_ficheros)))))
-print _(u'+ Recuperando %(fil)d ficheros de la partición. Este proceso puede tardar bastante.') % {'fil': num_total_ficheros } 
+print (Color().green( _(u'+ Recuperando %(fil)d ficheros de la partición. Este proceso puede tardar bastante.') % {'fil': num_total_ficheros } ))
 for linea in fls:
     if options.nsrl==True:
         sys.stdout.write (_("No desarrollado todavía"))

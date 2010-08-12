@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: recovermypartition 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-12 18:56+0200\n"
+"POT-Creation-Date: 2010-08-12 19:40+0200\n"
 "PO-Revision-Date: 2010-05-21 09:43+0200\n"
 "Last-Translator: root <turulomio@yahoo.es>\n"
 "Language-Team: Spanish\n"
@@ -99,54 +99,50 @@ msgid "Directorio de salida"
 msgstr ""
 
 #: ../recovermypartition.py:276
-msgid " ficheros de la partición. Este proceso puede tardar bastante."
-msgstr ""
-
-#: ../recovermypartition.py:280
 #, python-format
 msgid "+ Recuperando %(fil)d ficheros de la partición. Este proceso puede tardar bastante."
 msgstr ""
 
-#: ../recovermypartition.py:283
+#: ../recovermypartition.py:279
 msgid "No desarrollado todavía"
 msgstr ""
 
-#: ../recovermypartition.py:288
+#: ../recovermypartition.py:284
 msgid "  - Quedan "
 msgstr ""
 
-#: ../recovermypartition.py:288
+#: ../recovermypartition.py:284
 msgid " de "
 msgstr ""
 
-#: ../recovermypartition.py:288
+#: ../recovermypartition.py:284
 msgid ". [ Recuperados: "
 msgstr ""
 
-#: ../recovermypartition.py:288
+#: ../recovermypartition.py:284
 msgid " ]. T.Est: "
 msgstr ""
 
-#: ../recovermypartition.py:296
+#: ../recovermypartition.py:292
 msgid "Generando imagen dd de los clusters sin asignar"
 msgstr ""
 
-#: ../recovermypartition.py:297 ../recovermypartition.py:299
+#: ../recovermypartition.py:293 ../recovermypartition.py:295
 msgid "csa"
 msgstr ""
 
-#: ../recovermypartition.py:310
+#: ../recovermypartition.py:306
 msgid "La recuperación finalizó"
 msgstr ""
 
-#: ../recovermypartition.py:311
+#: ../recovermypartition.py:307
 msgid "Número de ficheros analizados"
 msgstr ""
 
-#: ../recovermypartition.py:312
+#: ../recovermypartition.py:308
 msgid "Número de ficheros recuperados"
 msgstr ""
 
-#: ../recovermypartition.py:317
+#: ../recovermypartition.py:313
 msgid "El proceso ha durado"
 msgstr ""

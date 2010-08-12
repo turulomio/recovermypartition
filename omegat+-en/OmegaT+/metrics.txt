@@ -1,10 +1,10 @@
 Mediciones del proyecto
 
 Total
-   Segmentos:       4
-    Palabras:      66
-  Caracteres:     594 :-espacios
-  Caracteres:     652 :+espacios
+   Segmentos:       6
+    Palabras:      79
+  Caracteres:     721 :-espacios
+  Caracteres:     786 :+espacios
 
 Restantes
    Segmentos:       0
@@ -13,10 +13,10 @@ Restantes
   Caracteres:       0 :+espacios
 
 únicos
-   Segmentos:       4
-    Palabras:      66
-  Caracteres:     594 :-espacios
-  Caracteres:     652 :+espacios
+   Segmentos:       6
+    Palabras:      79
+  Caracteres:     721 :-espacios
+  Caracteres:     786 :+espacios
 
 únicos restantes
    Segmentos:       0
@@ -27,6 +27,7 @@ Restantes
 Mediciones del documento
 
     TW      RW      TCNS    RCNS    TC      RC     Documento
+      13       0     127       0     134       0 - AUTHORS-EN.txt
       31       0     253       0     282       0 - CHANGELOG-EN.txt
       13       0     107       0     119       0 - INSTALL-EN.txt
       22       0     234       0     251       0 - RELEASES-EN.txt

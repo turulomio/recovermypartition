@@ -14,6 +14,30 @@
   <body>
     <tu>
       <tuv xml:lang="es">
+        <seg>Idea y Desarrollo
+-----------------
+Mariano Muñoz &lt;turulomio@yahoo.es&gt;</seg>
+      </tuv>
+      <tuv xml:lang="en">
+        <seg>Idea and developing
+-----------------
+Mariano Muñoz &lt;turulomio@yahoo.es&gt;</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="es">
+        <seg>Traducción
+----------
+Inglés: Mariano Muñoz &lt;turulomio@yahoo.es&gt;</seg>
+      </tuv>
+      <tuv xml:lang="en">
+        <seg>Translation
+-------------
+English: Mariano Muñoz &lt;turulomio@yahoo.es&gt;</seg>
+      </tuv>
+    </tu>
+    <tu>
+      <tuv xml:lang="es">
         <seg>recovermypartition-0.2 &lt;==&gt;  svn -r 20 co https://recovermypartit.svn.sourceforge.net/svnroot/recovermypartit recovermypartit 
 recovermypartition-0.1 &lt;==&gt;  svn -r 8 co https://recovermypartit.svn.sourceforge.net/svnroot/recovermypartit recovermypartit</seg>
       </tuv>
