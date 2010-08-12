@@ -1,4 +1,4 @@
-xgettext --no-wrap -o recovermypartition.pot ../recovermypartition.py
+xgettext -L Python --no-wrap -o recovermypartition.pot ../recovermypartition.py
 #msginit --output-file en.po #para nueva traducción
 msgmerge -N --no-wrap -U en.po recovermypartition.pot 
 msgmerge -N --no-wrap -U fr.po recovermypartition.pot 

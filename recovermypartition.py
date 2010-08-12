@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-import os, sys, time,  string,  math,  calendar,  datetime
+import os, sys, time,  string,  math,  calendar,  datetime, gettext
 from subprocess import *
 from optparse import OptionParser
-from gettext import *
 
 class Color:
     esc_seq = "\x1b["
@@ -218,11 +217,11 @@ class Sleuthkit:
         return True
 
     
-bindtextdomain('recovermypartition','/usr/share/locale/')
-textdomain('recovermypartition')
+gettext.bindtextdomain('recovermypartition','/usr/share/locale/')
+gettext.textdomain('recovermypartition')
 
 def _(cadena):
-    return gettext(cadena)
+    return gettext.gettext(cadena)
 
 num_total_ficheros=0 # Numero de ficheros en la lista de recuperacion
 num_positivos_nsrl=0 #Numero de ficheros que dan positivo en nsrl
@@ -274,9 +273,11 @@ print (Color().fuchsia(_(u"Directorio de salida")+":          ") + options.outpu
 
 num_total_ficheros=len(fls)
 puntnumerototalficheros=num_total_ficheros
-
-print (Color().green(_("+ Recuperando {0} ficheros de la partición. Este proceso puede tardar bastante.").format(str(num_total_ficheros))))
-
+problemtranslate= _(" ficheros de la partición. Este proceso puede tardar bastante.")
+#recovering=_("+ Recuperando ")+ str(num_total_ficheros) + problemtranslate
+#print (Color().green(recovering))
+#print (Color().green(_("+ Recuperando {0} ficheros de la partición. Este proceso puede tardar bastante.".format(str(num_total_ficheros)))))
+print _(u'+ Recuperando %(fil)d ficheros de la partición. Este proceso puede tardar bastante.') % {'fil': num_total_ficheros } 
 for linea in fls:
     if options.nsrl==True:
         sys.stdout.write (_("No desarrollado todavía"))
