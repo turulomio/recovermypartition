@@ -234,7 +234,8 @@ parser.add_option( "--no-deleted", action="store_true", default=False, dest="nod
 parser.add_option( "--csa", action="store_true", default=False, dest="csa", help=_(u"Analiza los clusters sin asignar con foremost"))
 parser.add_option( "--nsrl", action="store_true", default=False, dest="nsrl", help=_(u"Chequea contra la base de datos nrsl"))
 parser.add_option( "--partition", action="store", dest="partition", help=_(u"Partición o imagen a analizar"))
-parser.add_option( "--output", action="store",  dest="output", default="output/",  help=_(u"Directorio de salida (Default output)"))
+output="recovermypartition_{0}/".format(str(datetime.datetime.now())[:19]).replace(" ","_")
+parser.add_option( "--output", action="store",  dest="output", default=output,  help=_(u"Directorio de salida"))
 (options, args) = parser.parse_args()
 
 try:

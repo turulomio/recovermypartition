@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: recovermypartition 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-12 19:40+0200\n"
+"POT-Creation-Date: 2012-12-20 17:07+0100\n"
 "PO-Revision-Date: 2010-05-18 21:06+0200\n"
 "Last-Translator: root <turulomio@yahoo.es>\n"
 "Language-Team: Spanish\n"
@@ -50,102 +50,101 @@ msgstr "Check against nrsl database"
 msgid "Partición o imagen a analizar"
 msgstr "Partition or image to analyze"
 
-#: ../recovermypartition.py:237
-msgid "Directorio de salida (Default output)"
-msgstr "Output directory (Default output)"
-
-#: ../recovermypartition.py:241
-msgid "Ficheros"
-msgstr "Files"
-
-#: ../recovermypartition.py:242
-msgid "Borrados"
-msgstr "Deleted"
-
-#: ../recovermypartition.py:243
-msgid "CSA"
-msgstr "UAC"
-
-#: ../recovermypartition.py:249
-msgid "Ha habido problemas al crear los directorios de salida. Compruebe que no existe"
-msgstr "Error creating output directories. Output directory must not exist"
-
-#: ../recovermypartition.py:255
-msgid "La recuperación comenzó"
-msgstr "Recovery started"
-
-#: ../recovermypartition.py:258
-msgid "No se ha especificado la partición"
-msgstr "You have to put --partition"
-
-#: ../recovermypartition.py:262
-msgid "Generando lista para todos los ficheros, incluidos borrados"
-msgstr "Creating files list, deleted included"
-
-#: ../recovermypartition.py:265
-msgid "Generando lista sólo para ficheros borrados"
-msgstr "Creating deleted file list"
-
-#: ../recovermypartition.py:268
-msgid "Generando lista sólo para ficheros normales"
-msgstr "Creating files list"
-
-#: ../recovermypartition.py:271
-msgid "Particion o imagen a analizar"
-msgstr "Partition or image to analyze"
-
-#: ../recovermypartition.py:272
+#: ../recovermypartition.py:238 ../recovermypartition.py:273
 msgid "Directorio de salida"
 msgstr "Output directory"
 
-#: ../recovermypartition.py:276
+#: ../recovermypartition.py:242
+msgid "Ficheros"
+msgstr "Files"
+
+#: ../recovermypartition.py:243
+msgid "Borrados"
+msgstr "Deleted"
+
+#: ../recovermypartition.py:244
+msgid "CSA"
+msgstr "UAC"
+
+#: ../recovermypartition.py:250
+msgid "Ha habido problemas al crear los directorios de salida. Compruebe que no existe"
+msgstr "Error creating output directories. Output directory must not exist"
+
+#: ../recovermypartition.py:256
+msgid "La recuperación comenzó"
+msgstr "Recovery started"
+
+#: ../recovermypartition.py:259
+msgid "No se ha especificado la partición"
+msgstr "You have to put --partition"
+
+#: ../recovermypartition.py:263
+msgid "Generando lista para todos los ficheros, incluidos borrados"
+msgstr "Creating files list, deleted included"
+
+#: ../recovermypartition.py:266
+msgid "Generando lista sólo para ficheros borrados"
+msgstr "Creating deleted file list"
+
+#: ../recovermypartition.py:269
+msgid "Generando lista sólo para ficheros normales"
+msgstr "Creating files list"
+
+#: ../recovermypartition.py:272
+msgid "Particion o imagen a analizar"
+msgstr "Partition or image to analyze"
+
+#: ../recovermypartition.py:277
 #, python-format
 msgid "+ Recuperando %(fil)d ficheros de la partición. Este proceso puede tardar bastante."
 msgstr "+ Recovering %(fil)d partition files. This process can take a long time."
 
-#: ../recovermypartition.py:279
+#: ../recovermypartition.py:280
 msgid "No desarrollado todavía"
 msgstr "Not developed yet"
 
-#: ../recovermypartition.py:284
+#: ../recovermypartition.py:285
 msgid "  - Quedan "
 msgstr "  - Rest "
 
-#: ../recovermypartition.py:284
+#: ../recovermypartition.py:285
 msgid " de "
 msgstr " of "
 
-#: ../recovermypartition.py:284
+#: ../recovermypartition.py:285
 msgid ". [ Recuperados: "
 msgstr ". [ Recovered: "
 
-#: ../recovermypartition.py:284
+#: ../recovermypartition.py:285
 msgid " ]. T.Est: "
 msgstr " ]. ETA: "
 
-#: ../recovermypartition.py:292
+#: ../recovermypartition.py:293
 msgid "Generando imagen dd de los clusters sin asignar"
 msgstr "Generating dd image of unassigned clusters"
 
-#: ../recovermypartition.py:293 ../recovermypartition.py:295
+#: ../recovermypartition.py:294 ../recovermypartition.py:296
 msgid "csa"
 msgstr "uac"
 
-#: ../recovermypartition.py:306
+#: ../recovermypartition.py:307
 msgid "La recuperación finalizó"
 msgstr "Recovery ends at"
 
-#: ../recovermypartition.py:307
+#: ../recovermypartition.py:308
 msgid "Número de ficheros analizados"
 msgstr "Analyzed files number"
 
-#: ../recovermypartition.py:308
+#: ../recovermypartition.py:309
 msgid "Número de ficheros recuperados"
 msgstr "Recovered files number"
 
-#: ../recovermypartition.py:313
+#: ../recovermypartition.py:314
 msgid "El proceso ha durado"
 msgstr "The process took"
+
+#~ msgid "Directorio de salida (Default output)"
+#~ msgstr "Output directory (Default output)"
 
 #~ msgid " ficheros de la partición. Este proceso puede tardar bastante."
 #~ msgstr " partition files. The process can take a long time."
