@@ -1,1 +1,1 @@
-20130129 Falla la traducción
+20130129 Si hay un ' en el nombre del fichero falla, escaparlo
