@@ -1,4 +1,1 @@
-20100521 Deseo. Hacer pruebas con ntfs, ext2, ext3, ext4
-20100718 Deseo. Hacer un fichero man
-20121220 Los ficheros de salida se deben generar con un time y segundos diferentes
-20130128 Quitar los dos puntos del nombre del fichero, peta en windows
+20130129 Falla la traducción

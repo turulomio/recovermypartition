@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-
 import os, sys, time,  string,  math,  calendar,  datetime, gettext,subprocess
+
+
 from subprocess import *
 from optparse import OptionParser
 
@@ -65,16 +65,6 @@ class Color:
     def darkred(self, text):
         return self.codes["darkred"]+text+self.codes["reset"]
 
-#
-#def endslash (path):
-#    """Esta función hace que el path pasado como parametro acabe en una barra
-#    Por ejemplo endslash('/home/pepe') devuelve /home/pepe/"""
-#    if path[len(path)-1]=="/":
-#        return path
-#    else:
-#        return path +"/"
-
-
 def contador(puntpasosdesdecero, totalpasos, tiempo_inicio_contador_parcial):
     """
         Función que devuelve segundos estimados
@@ -82,7 +72,6 @@ def contador(puntpasosdesdecero, totalpasos, tiempo_inicio_contador_parcial):
     tiempoactual=time.time()
     resultado=(totalpasos-puntpasosdesdecero)*(tiempoactual-tiempo_inicio_contador_parcial)/puntpasosdesdecero
     return resultado
-
 
 
 def path2sleuthkit(cadena):
@@ -103,16 +92,20 @@ def segundos2fechastring(segundos):
     segundosquedan=math.fmod(segundosquedan,60)
     segundos=int(segundosquedan)
     #return str(dias)+ "d "+ str(horas) + "h " + str(minutos) + "m " + str(segundos) +"s"
-    return "{0:d}d {1}h {2}m {3}s".format(dias,  horas,  minutos, segundos)
+    return "{0}d {1}h {2}m {3}s".format(dias,  horas,  minutos, segundos)
 
 def string2time(cadena):
     try:
         t= time.strptime(cadena,"%Y-%m-%d %H:%M:%S (%Z)")
-#        print (t)#parece que lo hace bien
     except:
         return None
     return t 
 
+def time2string(t):
+    """Creo que no hace bien el zone"""
+    if t==None:
+        return "None"
+    return time.strftime("%Y-%m-%d %H:%M:%S %z (%Z)", t)
 
 #~def dt(date, hour, zone):
 #    """Función que devuleve un datetime con zone info"""    
@@ -121,15 +114,10 @@ def string2time(cadena):
 #a=z.localize(a)
 #    return a
 
-
-
 class SetFiles:
     def __init__(self):
         self.countinode0=0
         pass
-        
-        
-
 
 class File:
     def __init__(self,l):
@@ -151,9 +139,6 @@ class File:
         
         self.reallocated=None#Se rellena con isDeleted
         self.deleted=self.isDeleted()
-
-
-
 
     def isDirectory(self):
         if self.type=="d" or self.type_metadata=="d":
@@ -183,10 +168,10 @@ class File:
     def path(self):
         """Devuelve el path relativo donde se grabará el fichero"""
         if self.type=="v":
-            return _("Virtual")+"/"+self.name
+            return _("Virtuales")+"/"+self.name
         elif self.deleted==True:
-            return _("Deleted")+"/"+self.name
-        return _("Files") +"/"+ self.name
+            return _("Borrados")+"/"+self.name
+        return _("Ficheros") +"/"+ self.name
       
     def isCriticalError(self):
         "Devuelve si hay un error crítico, es decir menor que 20"
@@ -268,10 +253,10 @@ i-node: """ + self.inode +"""
 Deleted: """ + str(self.deleted) + """
 Reallocated: """ + str(self.reallocated) + """
 Type: """+ self.type+"/"+self.type_metadata+"""
-Access time: """+ str(self.acc_time)+"""
-Modification time: """+str(self.mod_time)+"""
-Change time: """+str(self.chg_time)+"""
-Creation time: """+str(self.cre_time)+"""
+Access time: """+ time2string(self.acc_time)+"""
+Modification time: """+time2string(self.mod_time)+"""
+Change time: """+time2string(self.chg_time)+"""
+Creation time: """+ time2string(self.cre_time)+"""
 Size: """+ str(self.size) + """
 Errores: """ + errores[:-2] + """
 FLS: """ + self.flsline 
@@ -325,11 +310,14 @@ parser.add_option( "--partition", action="store", dest="partition", help=_("Part
 output="recovermypartition_{0}/".format(str(datetime.datetime.now())[:19]).replace(" ","_").replace(":","").replace("-","")
 parser.add_option( "--output", action="store",  dest="output", default=output,  help=_("Directorio de salida"))
 (options, args) = parser.parse_args()
-
+    
+if options.partition==None:
+    print (_("No se ha especificado la partición"))
+    sys.exit(190)
+    
+    
 try:
-    dir_uac=options.output+_('CSA')+'/'
     os.makedirs(options.output)
-    os.makedirs(dir_uac)
 except OSError:
     print (_("Ha habido problemas al crear los directorios de salida. Compruebe que no existe"))
     sys.exit()
@@ -337,11 +325,9 @@ except OSError:
 error=open(options.output+"recovermypartition.error", "w")
 log=open(options.output + "/recovermypartition.log", "w")
 tiempo_contador_parcial=time.time()
+log.write(_("Dispositivo: {0}\n".format(options.partition)))
 log.write(_("La recuperación comenzó") + ": " + str(datetime.datetime.now()) +"\n")
-    
-if options.partition==None:
-    print (_("No se ha especificado la partición"))
-    sys.exit(190)
+
 
 if options.nofiles==False and options.nodeleted==False:
     print (Color().red(_("Generando lista para todos los ficheros, incluidos borrados")))
@@ -367,7 +353,7 @@ print (Color().fuchsia(_("Directorio de salida")+":          ") + options.output
 
 num_total_ficheros=len(fls)
 puntnumerototalficheros=num_total_ficheros
-print (Color().green( _("+ Recuperando {0} ficheros de la partición. Este proceso puede tardar bastante.".format(num_total_ficheros  ))))
+print (Color().green( _("+ Recuperando {0} ficheros de la particion. Este proceso puede tardar bastante.".format(num_total_ficheros  ))))
 for linea in fls:
     if options.nsrl==True:
         sys.stdout.write (_("No desarrollado todavía"))
@@ -377,7 +363,7 @@ for linea in fls:
         if f.isCriticalError()==False:
             num_recuperados=num_recuperados+1
         else:
-            print (f, f.isCriticalError(), f.errors)
+            print (f)
         puntnumerototalficheros=puntnumerototalficheros-1
         #cadena= _("  - Quedan ") + str(puntnumerototalficheros) + _(" de ") + str(num_total_ficheros) + _(". [ Recuperados: ")+Color().green(str(num_recuperados))+_(" ]. T.Est: ") + Color().yellow(segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial)) ) + "  "
         cadena= _("  - Quedan  {0} de {1}. [ Recuperados: {2}]. T.Est: {3}                     ".format(puntnumerototalficheros, num_total_ficheros,  Color().green(str(num_recuperados)), Color().yellow(segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial)) ) ))
