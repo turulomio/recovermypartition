@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-import os, sys, time,  string,  math,  calendar,  datetime, gettext
+import os, sys, time,  string,  math,  calendar,  datetime, gettext,subprocess
 from subprocess import *
 from optparse import OptionParser
 
@@ -95,58 +95,195 @@ def path2sleuthkit(cadena):
     return cadena
 
 def segundos2fechastring(segundos):
-    dias=int(segundos)/int(24*60*60)
+    dias=int(segundos/(24*60*60))
     segundosquedan=math.fmod(segundos,24*60*60)
-    horas=int(segundosquedan)/int(60*60)
+    horas=int(segundosquedan/(60*60))
     segundosquedan=math.fmod(segundosquedan,60*60)
-    minutos=int(segundosquedan)/int(60)
+    minutos=int(segundosquedan/60)
     segundosquedan=math.fmod(segundosquedan,60)
     segundos=int(segundosquedan)
-    return str(dias)+ "d "+ str(horas) + "h " + str(minutos) + "m " + str(segundos) +"s"
+    #return str(dias)+ "d "+ str(horas) + "h " + str(minutos) + "m " + str(segundos) +"s"
+    return "{0:d}d {1}h {2}m {3}s".format(dias,  horas,  minutos, segundos)
 
 def string2time(cadena):
     try:
         t= time.strptime(cadena,"%Y-%m-%d %H:%M:%S (%Z)")
+#        print (t)#parece que lo hace bien
     except:
         return None
     return t 
 
-class Sleuthkit:      
-    def fls2arr(self,l):
-        """
-            Si el inodo vale 0 devuelve None
-            file_type inode file_name mod_time acc_time chg_time cre_time size uid gid
-        """
-        arr={}
-        arr['reallocated']=False
-        arr['deleted']=False
-        if l.split(chr(9))[0].find("(realloc)")>-1:
-            arr['reallocated']=True
-            arr['deleted']=True
-            arr['inode']= l.split(chr(9))[0].split(" ")[2][:-10]
-        elif l.split(chr(9))[0].find("*")>-1:
-            arr['deleted']=True
-            arr['inode']= l.split(chr(9))[0].split(" ")[2][:-1]
-        else:
-            arr['inode']= l.split(chr(9))[0].split(" ")[1][:-1]
-        arr['type_filename']=l[0]
-        arr['type_metadata']=l[2]
-        if arr['inode']==0:
-            return None
-        arr['file_name']=l.split(chr(9))[1]
-        arr['mod_time']=string2time(l.split(chr(9))[2])
-        arr['acc_time']=string2time(l.split(chr(9))[3])
-        arr['chg_time']=string2time(l.split(chr(9))[4])
-        arr['cre_time']=string2time(l.split(chr(9))[5])
-        arr['size']=int(l.split(chr(9))[6])
-        arr['uid']=int(l.split(chr(9))[7])
-        arr['gid']=int(l.split(chr(9))[8])
+
+#~def dt(date, hour, zone):
+#    """Función que devuleve un datetime con zone info"""    
+#    z=pytz.timezone(zone)
+#    a=datetime.datetime(date.year,  date.month,  date.day,  hour.hour,  hour.minute,  hour.second, hour.microsecond)
+#a=z.localize(a)
+#    return a
+
+
+
+class SetFiles:
+    def __init__(self):
+        self.countinode0=0
+        pass
         
-        ##Curiosidades
-        if arr['file_name']=="$OrphanFiles" and arr['type_filename']=="d":
-            arr['deleted']=True
-        return arr
-    
+        
+
+
+class File:
+    def __init__(self,l):
+        """l es una linea fls"""    
+        self.flsline=l
+        self.errors=[] #Van acumulando errores
+
+        self.inode=self.getInode()
+        self.type=self.flsline[0]
+        self.type_metadata=self.flsline[2]
+        self.name=self.flsline.split(chr(9))[1]
+        self.mod_time=string2time(self.flsline.split(chr(9))[2])
+        self.acc_time=string2time(self.flsline.split(chr(9))[3])
+        self.chg_time=string2time(self.flsline.split(chr(9))[4])
+        self.cre_time=string2time(self.flsline.split(chr(9))[5])
+        self.size=int(self.flsline.split(chr(9))[6])
+        self.uid=int(self.flsline.split(chr(9))[7])
+        self.gid=int(self.flsline.split(chr(9))[8])
+        
+        self.reallocated=None#Se rellena con isDeleted
+        self.deleted=self.isDeleted()
+
+
+
+
+    def isDirectory(self):
+        if self.type=="d" or self.type_metadata=="d":
+            return True
+        return False
+
+    def isDeleted(self):
+        self.reallocated=False
+        if self.flsline.split(chr(9))[0].find("(realloc)")>-1:
+            self.reallocated=True
+            return True        
+        elif self.flsline.split(chr(9))[0].find("*")>-1:
+            return True
+        if self.name.find("$OrphanFiles")>-1:
+            return True
+        return False
+
+      
+    def getInode(self):
+        if self.flsline.split(chr(9))[0].find("(realloc)")>-1:
+            return self.flsline.split(chr(9))[0].split(" ")[2][:-10]
+        elif self.flsline.split(chr(9))[0].find("*")>-1:
+            return self.flsline.split(chr(9))[0].split(" ")[2][:-1]
+        else:
+            return self.flsline.split(chr(9))[0].split(" ")[1][:-1]
+        
+    def path(self):
+        """Devuelve el path relativo donde se grabará el fichero"""
+        if self.type=="v":
+            return _("Virtual")+"/"+self.name
+        elif self.deleted==True:
+            return _("Deleted")+"/"+self.name
+        return _("Files") +"/"+ self.name
+      
+    def isCriticalError(self):
+        "Devuelve si hay un error crítico, es decir menor que 20"
+        if len(self.errors)==0:
+            return False
+            
+        for e in self.errors:
+            if e<20:
+                return True
+        return False
+      
+    def save(self):
+        if self.inode==0:
+            self.errors.append(1)
+            
+        fullpath=options.output+"/" +self.path()
+        if self.isDirectory()==True:
+            try:
+                os.makedirs(fullpath)
+            except:
+                pass     #No se puede controlar el error
+        else:
+            try:
+                os.makedirs(os.path.dirname(fullpath))
+            except:
+                pass
+            try:
+                if self.deleted==True:
+                    p=subprocess.check_output("icat -r '{0}' {1} > '{2}'".format(options.partition,self.inode, fullpath),shell=True)
+                else:
+                    p=subprocess.check_output("icat '{0}' {1} > '{2}'".format(options.partition,self.inode, fullpath),shell=True)
+                if len(p)>0:
+                    self.errors.append(11)
+            except:
+                self.errors.append(10) 
+            
+        try:
+            accesed=calendar.timegm(self.acc_time)
+        except:
+            self.errors.append(20) 
+            accesed=0
+
+        try:
+            modified=calendar.timegm(self.mod_time)
+        except:
+            modified=0
+            self.errors.append(25)
+            
+        try:
+            os.utime(fullpath,(accesed,modified))
+        except:
+            self.errors.append(30)
+        
+        
+        self.parseErrors()
+        
+    def __repr__(self):
+        errores=""
+        if 1 in self.errors:
+            errores=errores +"Inodo vale 0, "
+        if 5 in self.errors:
+            errores=errores +"No he podido crear el directorio para fichero directorio, "
+        if 10 in self.errors:
+            errores=errores +"No he podido crear el fichero, icat exception"
+        if 11 in self.errors:
+            errores=errores +"No he podido crear el fichero, icat error >0"
+        if 15 in self.errors:
+            errores=errores +"No he podido crear el directorio para este fichero, "
+        if 20 in self.errors:
+            errores=errores +"Hora acceso no recuperada, "
+        if 25 in self.errors:
+            errores=errores +"Hora modificación no recuperada, "
+        if 30 in self.errors:
+            errores=errores +"Hora acceso y modificación no recreada, "
+            
+        return """
+Name: """ + self.name +"""
+i-node: """ + self.inode +"""
+Deleted: """ + str(self.deleted) + """
+Reallocated: """ + str(self.reallocated) + """
+Type: """+ self.type+"/"+self.type_metadata+"""
+Access time: """+ str(self.acc_time)+"""
+Modification time: """+str(self.mod_time)+"""
+Change time: """+str(self.chg_time)+"""
+Creation time: """+str(self.cre_time)+"""
+Size: """+ str(self.size) + """
+Errores: """ + errores[:-2] + """
+FLS: """ + self.flsline 
+      
+      
+    def parseErrors(self):
+        #################################
+        if self.name=="$OrphanFiles" and self.type=="d" and self.type_metadata=="d":
+            self.errors.remove(20)
+            self.errors.remove(25)
+
+class Sleuthkit:          
     def blkls(self, path_evidencia ,  path_salida_dd):
         """
             Funcion que genera un fichero texto partiendo de los clusters
@@ -163,58 +300,9 @@ class Sleuthkit:
         except:
             pass
         comando='blkls -s %s  > %s'%(path_evidencia, path_salida_dd)
-        sal=os.popen(comando)
+        os.popen(comando)
 
 
-    def icat(self, lineasleuthkit):
-        """
-            Funcion que partiendo de una linea sin el caracter de retorno sleut
-            y lo coloca en su directorio, 
-            
-            Devuelve un booleano si ha tenido exito o no la recuperacion
-        """
-        def salida():
-            if arr['type_filename']=="v":
-                return options.output+ arr['file_name']
-            if arr['deleted']==True:
-                return dir_deleted+ arr['file_name']
-            else:
-                return dir_files+ arr['file_name']
-
-        arr=self.fls2arr(lineasleuthkit)
-        if arr==None:
-            return False
-            
-        if arr['type_filename']=="d":       
-            try:
-                os.makedirs(salida())
-            except OSError:
-                pass            
-        else:
-            try:
-                os.makedirs(os.path.dirname(salida()))
-            except OSError:
-                pass
-            p = Popen('icat -r ' + options.partition + ' ' +str(arr['inode']) +" > /tmp/recovermypartition", shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
-            strerror=p.stderr.read()[:-1]
-            if len(strerror)>0:
-                error.write (str(datetime.datetime.now()) + "\t" +  lineasleuthkit.split(chr(9))[0]+ "\t"+ salida()+ "\ticat. " +  strerror + "\n")            
-            os.rename ("/tmp/recovermypartition",  salida())
-
-
-        try:
-            accesed=calendar.timegm(arr['acc_time'])
-        except:
-            error.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida()+ "\t"+_("No se ha podido recuperar la fecha de acceso")+"\n" )
-            accesed=0
-    
-        try:
-            modified=calendar.timegm(dic_atr['mod_time'])
-        except:
-            error.write (str(datetime.datetime.now())+ "\t" +  lineasleuthkit.split(chr(9))[0] + "\t" + salida()+ "\t"+_("No se ha podido recuperar la fecha de modificación")+"\n")
-            modified=0
-        os.utime(salida(),(accesed,modified))
-        return True
 
     
 gettext.bindtextdomain('recovermypartition','/usr/share/locale/')
@@ -226,25 +314,21 @@ def _(cadena):
 num_total_ficheros=0 # Numero de ficheros en la lista de recuperacion
 num_positivos_nsrl=0 #Numero de ficheros que dan positivo en nsrl
 num_recuperados=0
-version="0.3"
+version="20130128"
     
-parser = OptionParser(version=version,  description=_(u"Recupera los ficheros, los ficheros borrados de una partición"))
-parser.add_option( "--no-files", action="store_true", default=False, dest="nofiles", help=_(u"No extrae ficheros normales"))
-parser.add_option( "--no-deleted", action="store_true", default=False, dest="nodeleted", help=_(u"No extrae ficheros borrados"))
-parser.add_option( "--csa", action="store_true", default=False, dest="csa", help=_(u"Analiza los clusters sin asignar con foremost"))
-parser.add_option( "--nsrl", action="store_true", default=False, dest="nsrl", help=_(u"Chequea contra la base de datos nrsl"))
-parser.add_option( "--partition", action="store", dest="partition", help=_(u"Partición o imagen a analizar"))
-output="recovermypartition_{0}/".format(str(datetime.datetime.now())[:19]).replace(" ","_")
-parser.add_option( "--output", action="store",  dest="output", default=output,  help=_(u"Directorio de salida"))
+parser = OptionParser(version=version,  description=_("Recupera los ficheros, los ficheros borrados de una partición"))
+parser.add_option( "--no-files", action="store_true", default=False, dest="nofiles", help=_("No extrae ficheros normales"))
+parser.add_option( "--no-deleted", action="store_true", default=False, dest="nodeleted", help=_("No extrae ficheros borrados"))
+parser.add_option( "--csa", action="store_true", default=False, dest="csa", help=_("Analiza los clusters sin asignar con foremost"))
+parser.add_option( "--nsrl", action="store_true", default=False, dest="nsrl", help=_("Chequea contra la base de datos nrsl"))
+parser.add_option( "--partition", action="store", dest="partition", help=_("Partición o imagen a analizar"))
+output="recovermypartition_{0}/".format(str(datetime.datetime.now())[:19]).replace(" ","_").replace(":","").replace("-","")
+parser.add_option( "--output", action="store",  dest="output", default=output,  help=_("Directorio de salida"))
 (options, args) = parser.parse_args()
 
 try:
-    dir_files=options.output+_('Ficheros')+'/'
-    dir_deleted=options.output+_('Borrados')+'/'
     dir_uac=options.output+_('CSA')+'/'
     os.makedirs(options.output)
-    os.makedirs(dir_files)
-    os.makedirs(dir_deleted)
     os.makedirs(dir_uac)
 except OSError:
     print (_("Ha habido problemas al crear los directorios de salida. Compruebe que no existe"))
@@ -260,29 +344,43 @@ if options.partition==None:
     sys.exit(190)
 
 if options.nofiles==False and options.nodeleted==False:
-    print (Color().red(_(u"Generando lista para todos los ficheros, incluidos borrados")))
+    print (Color().red(_("Generando lista para todos los ficheros, incluidos borrados")))
     fls=os.popen("fls -prl " + options.partition ).readlines()
 elif options.nofiles==True and options.nodeleted==False:
-    print (Color().red(_(u"Generando lista sólo para ficheros borrados")))
+    print (Color().red(_("Generando lista sólo para ficheros borrados")))
     fls=os.popen("fls -prdl " + options.partition ).readlines()
 elif options.nofiles==False and options.nodeleted==True:
-    print (Color().red(_(u"Generando lista sólo para ficheros normales")))
+    print (Color().red(_("Generando lista sólo para ficheros normales")))
     fls=os.popen("fls -prul " + options.partition ).readlines()
-    
-print (Color().fuchsia(_(u"Particion o imagen a analizar")+": ") + options.partition)
-print (Color().fuchsia(_(u"Directorio de salida")+":          ") + options.output)
+
+
+
+##CREA FICHERO SLEUTHKIT
+f=open(options.output + "/recovermypartition.sleuthkit", "w")
+for line in fls:
+    f.write(line)
+f.close()
+
+##ARRANCA    
+print (Color().fuchsia(_("Particion o imagen a analizar")+": ") + options.partition)
+print (Color().fuchsia(_("Directorio de salida")+":          ") + options.output)
 
 num_total_ficheros=len(fls)
 puntnumerototalficheros=num_total_ficheros
-print (Color().green( _(u'+ Recuperando %(fil)d ficheros de la partición. Este proceso puede tardar bastante.') % {'fil': num_total_ficheros } ))
+print (Color().green( _("+ Recuperando {0} ficheros de la partición. Este proceso puede tardar bastante.".format(num_total_ficheros  ))))
 for linea in fls:
     if options.nsrl==True:
         sys.stdout.write (_("No desarrollado todavía"))
     else:
-        if Sleuthkit().icat(linea[:-1])==True:
+        f=File(linea)
+        f.save()
+        if f.isCriticalError()==False:
             num_recuperados=num_recuperados+1
+        else:
+            print (f, f.isCriticalError(), f.errors)
         puntnumerototalficheros=puntnumerototalficheros-1
-        cadena= _(u"  - Quedan ") + str(puntnumerototalficheros) + _(u" de ") + str(num_total_ficheros) + _(u". [ Recuperados: ")+Color().green(str(num_recuperados))+_(u" ]. T.Est: ") + Color().yellow(segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial)) ) + "  "
+        #cadena= _("  - Quedan ") + str(puntnumerototalficheros) + _(" de ") + str(num_total_ficheros) + _(". [ Recuperados: ")+Color().green(str(num_recuperados))+_(" ]. T.Est: ") + Color().yellow(segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial)) ) + "  "
+        cadena= _("  - Quedan  {0} de {1}. [ Recuperados: {2}]. T.Est: {3}                     ".format(puntnumerototalficheros, num_total_ficheros,  Color().green(str(num_recuperados)), Color().yellow(segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial)) ) ))
         
         
     sys.stdout.write("\b"*(len(cadena)+5)) 
@@ -290,12 +388,12 @@ for linea in fls:
     sys.stdout.flush()  
 
 if options.csa==True:
-    print Color().green("\n+ "+ _("Generando imagen dd de los clusters sin asignar"))
+    print (Color().green("\n+ "+ _("Generando imagen dd de los clusters sin asignar")))
     Sleuthkit().blkls(options.partition, options.output +_('csa')+'.dd' )
-    
+
     os.system('foremost -o '+ dir_uac+ ' -i ' +  options.output +_('csa')+'.dd')
 error.close()
-print 
+print ("\n")
 
 ##CREA FICHERO SLEUTHKIT
 f=open(options.output + "/recovermypartition.sleuthkit", "w")
