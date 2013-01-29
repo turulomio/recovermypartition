@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
-import os, sys, time,  string,  math,  calendar,  datetime, gettext,subprocess
-
-
-from subprocess import *
+#!/usr/bin/python3
+import os, sys, time,  string,  math,  calendar,  datetime, subprocess
+from PyQt4.QtCore import *
 from optparse import OptionParser
 
 class Color:
@@ -91,7 +89,6 @@ def segundos2fechastring(segundos):
     minutos=int(segundosquedan/60)
     segundosquedan=math.fmod(segundosquedan,60)
     segundos=int(segundosquedan)
-    #return str(dias)+ "d "+ str(horas) + "h " + str(minutos) + "m " + str(segundos) +"s"
     return "{0}d {1}h {2}m {3}s".format(dias,  horas,  minutos, segundos)
 
 def string2time(cadena):
@@ -168,10 +165,10 @@ class File:
     def path(self):
         """Devuelve el path relativo donde se grabará el fichero"""
         if self.type=="v":
-            return _("Virtuales")+"/"+self.name
+            return QCoreApplication.translate("recovermypartition","Virtual")+"/"+self.name
         elif self.deleted==True:
-            return _("Borrados")+"/"+self.name
-        return _("Ficheros") +"/"+ self.name
+            return QCoreApplication.translate("recovermypartition","Deleted")+"/"+self.name
+        return QCoreApplication.translate("recovermypartition","Files") +"/"+ self.name
       
     def isCriticalError(self):
         "Devuelve si hay un error crítico, es decir menor que 20"
@@ -231,22 +228,17 @@ class File:
     def __repr__(self):
         errores=""
         if 1 in self.errors:
-            errores=errores +"Inodo vale 0, "
-        if 5 in self.errors:
-            errores=errores +"No he podido crear el directorio para fichero directorio, "
+            errores=errores +QCoreApplication.translate("recovermypartition","I-node is 0") + ", "
         if 10 in self.errors:
-            errores=errores +"No he podido crear el fichero, icat exception"
+            errores=errores +QCoreApplication.translate("recovermypartition","I couldn't create file") + ", "
         if 11 in self.errors:
-            errores=errores +"No he podido crear el fichero, icat error >0"
-        if 15 in self.errors:
-            errores=errores +"No he podido crear el directorio para este fichero, "
+            errores=errores +QCoreApplication.translate("recovermypartition","I couldn't create file. Icat error string  greater than 0") + ", "
         if 20 in self.errors:
-            errores=errores +"Hora acceso no recuperada, "
+            errores=errores +QCoreApplication.translate("recovermypartition","Not recovered access time") + ", "
         if 25 in self.errors:
-            errores=errores +"Hora modificación no recuperada, "
+            errores=errores +QCoreApplication.translate("recovermypartition","Not recovered modification time") + ", "
         if 30 in self.errors:
-            errores=errores +"Hora acceso y modificación no recreada, "
-            
+            errores=errores +QCoreApplication.translate("recovermypartition","Access and modification time couldn't be rebuild") + ", "
         return """
 Name: """ + self.name +"""
 i-node: """ + self.inode +"""
@@ -288,58 +280,56 @@ class Sleuthkit:
         os.popen(comando)
 
 
+######################################################################
+######################################################################
 
-    
-gettext.bindtextdomain('recovermypartition','/usr/share/locale/')
-gettext.textdomain('recovermypartition')
 
-def _(cadena):
-    return gettext.gettext(cadena)
-
-num_total_ficheros=0 # Numero de ficheros en la lista de recuperacion
-num_positivos_nsrl=0 #Numero de ficheros que dan positivo en nsrl
-num_recuperados=0
 version="20130128"
     
-parser = OptionParser(version=version,  description=_("Recupera los ficheros, los ficheros borrados de una partición"))
-parser.add_option( "--no-files", action="store_true", default=False, dest="nofiles", help=_("No extrae ficheros normales"))
-parser.add_option( "--no-deleted", action="store_true", default=False, dest="nodeleted", help=_("No extrae ficheros borrados"))
-parser.add_option( "--csa", action="store_true", default=False, dest="csa", help=_("Analiza los clusters sin asignar con foremost"))
-parser.add_option( "--nsrl", action="store_true", default=False, dest="nsrl", help=_("Chequea contra la base de datos nrsl"))
-parser.add_option( "--partition", action="store", dest="partition", help=_("Partición o imagen a analizar"))
+a=QCoreApplication(sys.argv)
+language=QLocale().name().split("_")[0]
+translator=QTranslator()
+translator.load("/usr/share/recovermypartition/recovermypartition_" + language + ".qm")
+a.installTranslator(translator);    
+    
+
+    
+    
+parser = OptionParser(version=version,  description=QCoreApplication.translate("recovermypartition","Recover files and deleted files from a device or image"))
+parser.add_option( "--no-files", action="store_true", default=False, dest="nofiles", help=QCoreApplication.translate("recovermypartition","Don't recover normal files"))
+parser.add_option( "--no-deleted", action="store_true", default=False, dest="nodeleted", help=QCoreApplication.translate("recovermypartition","Don't recover deleted files"))
+parser.add_option( "--partition", action="store", dest="partition", help=QCoreApplication.translate("recovermypartition","Device or imagen to analyze"))
 output="recovermypartition_{0}/".format(str(datetime.datetime.now())[:19]).replace(" ","_").replace(":","").replace("-","")
-parser.add_option( "--output", action="store",  dest="output", default=output,  help=_("Directorio de salida"))
+parser.add_option( "--output", action="store",  dest="output", default=output,  help=QCoreApplication.translate("recovermypartition","Output directory"))
+
 (options, args) = parser.parse_args()
     
+
 if options.partition==None:
-    print (_("No se ha especificado la partición"))
+    print (QCoreApplication.translate("recovermypartition","You need to pass --partition parameter"))
     sys.exit(190)
-    
     
 try:
     os.makedirs(options.output)
 except OSError:
-    print (_("Ha habido problemas al crear los directorios de salida. Compruebe que no existe"))
+    print (QCoreApplication.translate("recovermypartition","Output directory creating problem. Check it doesn't exist"))
     sys.exit()
     
 error=open(options.output+"recovermypartition.error", "w")
 log=open(options.output + "/recovermypartition.log", "w")
 tiempo_contador_parcial=time.time()
-log.write(_("Dispositivo: {0}\n".format(options.partition)))
-log.write(_("La recuperación comenzó") + ": " + str(datetime.datetime.now()) +"\n")
-
+log.write(QCoreApplication.translate("recovermypartition","Partition: {0}\n".format(options.partition)))
+log.write(QCoreApplication.translate("recovermypartition","Recovery started: {0}\n".format(str(datetime.datetime.now()))))
 
 if options.nofiles==False and options.nodeleted==False:
-    print (Color().red(_("Generando lista para todos los ficheros, incluidos borrados")))
+    print (Color().red(QCoreApplication.translate("recovermypartition","Generating all files list, including deleted")))
     fls=os.popen("fls -prl " + options.partition ).readlines()
 elif options.nofiles==True and options.nodeleted==False:
-    print (Color().red(_("Generando lista sólo para ficheros borrados")))
+    print (Color().red(QCoreApplication.translate("recovermypartition","Generating deleted files list")))
     fls=os.popen("fls -prdl " + options.partition ).readlines()
 elif options.nofiles==False and options.nodeleted==True:
-    print (Color().red(_("Generando lista sólo para ficheros normales")))
+    print (Color().red(QCoreApplication.translate("recovermypartition","Generating normal files list")))
     fls=os.popen("fls -prul " + options.partition ).readlines()
-
-
 
 ##CREA FICHERO SLEUTHKIT
 f=open(options.output + "/recovermypartition.sleuthkit", "w")
@@ -348,36 +338,29 @@ for line in fls:
 f.close()
 
 ##ARRANCA    
-print (Color().fuchsia(_("Particion o imagen a analizar")+": ") + options.partition)
-print (Color().fuchsia(_("Directorio de salida")+":          ") + options.output)
+print (Color().fuchsia(QCoreApplication.translate( "recovermypartition","Partition or image to analyze: {0}").format(options.partition)))
+print (Color().fuchsia(QCoreApplication.translate("recovermypartition","Output directory")+":          ") + options.output)
 
+num_total_ficheros=0 # Numero de ficheros en la lista de recuperacion
+num_recuperados=0
 num_total_ficheros=len(fls)
+
 puntnumerototalficheros=num_total_ficheros
-print (Color().green( _("+ Recuperando {0} ficheros de la particion. Este proceso puede tardar bastante.".format(num_total_ficheros  ))))
+print (Color().green( QCoreApplication.translate("recovermypartition","+ Recovering {0} files from partition. Process could take long time.").format(num_total_ficheros  )))
 for linea in fls:
-    if options.nsrl==True:
-        sys.stdout.write (_("No desarrollado todavía"))
+    f=File(linea)
+    f.save()
+    if f.isCriticalError()==False:
+        num_recuperados=num_recuperados+1
     else:
-        f=File(linea)
-        f.save()
-        if f.isCriticalError()==False:
-            num_recuperados=num_recuperados+1
-        else:
-            print (f)
-        puntnumerototalficheros=puntnumerototalficheros-1
-        #cadena= _("  - Quedan ") + str(puntnumerototalficheros) + _(" de ") + str(num_total_ficheros) + _(". [ Recuperados: ")+Color().green(str(num_recuperados))+_(" ]. T.Est: ") + Color().yellow(segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial)) ) + "  "
-        cadena= _("  - Quedan  {0} de {1}. [ Recuperados: {2}]. T.Est: {3}                     ".format(puntnumerototalficheros, num_total_ficheros,  Color().green(str(num_recuperados)), Color().yellow(segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial)) ) ))
-        
+        print (f)
+    puntnumerototalficheros=puntnumerototalficheros-1
+    cadena= QCoreApplication.translate("recovermypartition","  - Left {0} of {1}. [ Recovered: {2} ]. ETA: {3}                     ").format(puntnumerototalficheros, num_total_ficheros,  Color().green(str(num_recuperados)), Color().yellow(segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial))))
         
     sys.stdout.write("\b"*(len(cadena)+5)) 
     sys.stdout.write (cadena)   
     sys.stdout.flush()  
 
-if options.csa==True:
-    print (Color().green("\n+ "+ _("Generando imagen dd de los clusters sin asignar")))
-    Sleuthkit().blkls(options.partition, options.output +_('csa')+'.dd' )
-
-    os.system('foremost -o '+ dir_uac+ ' -i ' +  options.output +_('csa')+'.dd')
 error.close()
 print ("\n")
 
@@ -388,11 +371,10 @@ for line in fls:
 f.close()
 
 ##CREA FICHERO LOG
-log.write(_("La recuperación finalizó") + ": " + str(datetime.datetime.now()) +"\n")
-log.write(_("Número de ficheros analizados") + ": " + str(len(fls)) +"\n")
-log.write(_("Número de ficheros recuperados") + ": " + str(num_recuperados) +"\n")
+log.write(QCoreApplication.translate("recovermypartition","Recovery ended: {0}\n").format(str(datetime.datetime.now())))
+log.write(QCoreApplication.translate("recovermypartition","Analyzed files number: {0}\n").format(str(len(fls))))
+log.write(QCoreApplication.translate("recovermypartition","Recovery files number: {0}\n").format(str(num_recuperados)))
 log.close()
 
-
 ##MUESTRA TIEMPO DEL PROCESO
-print (Color().green("+ "+_("El proceso ha durado" )+ " "+segundos2fechastring(time.time()-tiempo_contador_parcial) ))
+print (Color().green("+ "+QCoreApplication.translate("recovermypartition","Recovery took: {0}").format(segundos2fechastring(time.time()-tiempo_contador_parcial) )))
