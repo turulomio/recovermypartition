@@ -1,5 +1,5 @@
 Dependences
- 	You need Sleuthkit, python, foremost
+ 	You need Sleuthkit, python3 and pyqt4
 To install
  	# make install
 To uninstall

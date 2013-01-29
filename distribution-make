@@ -4,25 +4,20 @@ FILE=$DIR.tar.gz
 echo "Este script crea el fichero $FILE para ser subido al proyecto"
 
 mkdir $DIR
-mkdir $DIR/po
+mkdir $DIR/i18n
+
 cp      Makefile \
-        CHANGELOG-EN.txt \
-        CHANGELOG-ES.txt \
+        AUTHORS.txt \
+        CHANGELOG.txt \
         GPL-3.txt \
-        INSTALL-EN.txt \
-        INSTALL-ES.txt \
-        RELEASES-EN.txt \
-        RELEASES-ES.txt \
+        INSTALL.txt \
+        RELEASES.txt \
         recovermypartition.py \
+        recovermypartition.pro \
         $DIR
 
-cp      po/en.po \
-        po/fr.po \
-        po/ru.po \
-        po/md.po \
-        po/recovermypartition.pot \
-        po/translate \
-        $DIR/po
+cp      i18n/recovermypartition_es.ts \
+        $DIR/i18n
 
 tar cvz $DIR -f $FILE
 rm -R $DIR

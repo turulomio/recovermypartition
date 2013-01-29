@@ -1,3 +1,7 @@
+recovermypartition XXXXXXXX
+===========================
+- Changed gettext by qt-core internationalization
+
 recovermypartition 0.2
 ======================
 - Bug solved when you don't set --partition
