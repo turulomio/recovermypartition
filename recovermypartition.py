@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, sys, time,  string,  math,  calendar,  datetime, subprocess
+import os, sys, time, math,  calendar,  datetime, subprocess
 from PyQt4.QtCore import *
 from optparse import OptionParser
 
@@ -26,14 +26,14 @@ class Color:
     codes["red"]       = esc_seq + "31;01m"
     codes["darkred"]   = esc_seq + "31m"
     
-    def resetColor(self, ):
-        return self.codes["reset"]
+    def resetColor(self, text):
+        return self.codes["reset"] + text
     def ctext(self, color,text):
         return self.codes[ctext]+text+self.codes["reset"]
     def bold(self, text):
         return self.codes["bold"]+text+self.codes["reset"]
     def white(self, text):
-        return bold(text)
+        return self.bold(text)
     def teal(self, text):
         return self.codes["teal"]+text+self.codes["reset"]
     def turquoise(self, text):
@@ -72,14 +72,6 @@ def contador(puntpasosdesdecero, totalpasos, tiempo_inicio_contador_parcial):
     return resultado
 
 
-def path2sleuthkit(cadena):
-    """Que sustituya por _ cuando se saca un listado sleuthkit y
-    nosotros generamos el sistema de ficheros.
-    """
-    todelete=('?','!','¡','"')
-    for caracter in todelete:
-        cadena=string.replace(cadena,caracter,'_')
-    return cadena
 
 def segundos2fechastring(segundos):
     dias=int(segundos/(24*60*60))
@@ -115,6 +107,18 @@ class SetFiles:
     def __init__(self):
         self.countinode0=0
         pass
+
+class LogFile:
+    def __init__(self, path):
+        self.path=path
+        self.file=open(path, "w")
+    def __del__(self):
+        #print(QCoreApplication.translate("recovermypartition","Logfile {0} closed").format(self.path))
+        self.file.close()
+        
+    def append(self, string):
+        self.file.write(string)
+        
 
 class File:
     def __init__(self,l):
@@ -181,10 +185,19 @@ class File:
         return False
       
     def save(self):
+        def path2sleuthkit(cadena):
+            """Que sustituya por _ cuando se saca un listado sleuthkit y
+            nosotros generamos el sistema de ficheros.
+            """
+            todelete=('?','!','¡','"', "'")
+            for caracter in todelete:
+                cadena=cadena.replace(caracter,'_')
+            return cadena        
         if self.inode==0:
             self.errors.append(1)
             
-        fullpath=options.output+"/" +self.path()
+        fullpath=options.output+"/" +path2sleuthkit(self.path())
+        
         if self.isDirectory()==True:
             try:
                 os.makedirs(fullpath)
@@ -270,7 +283,7 @@ class Sleuthkit:
             la operacion.
             
             El fichero se genera en 
-            directoriotemporaltrabajo+'/csa/particion.' + idparticion + '
+            directoriotemporaltrabajo+)'/csa/particion.' + idparticion + '
         """
         try:
             os.makedirs(path)
@@ -292,9 +305,6 @@ translator=QTranslator()
 translator.load("/usr/share/recovermypartition/recovermypartition_" + language + ".qm")
 a.installTranslator(translator);    
     
-
-    
-    
 parser = OptionParser(version=version,  description=QCoreApplication.translate("recovermypartition","Recover files and deleted files from a device or image"))
 parser.add_option( "--no-files", action="store_true", default=False, dest="nofiles", help=QCoreApplication.translate("recovermypartition","Don't recover normal files"))
 parser.add_option( "--no-deleted", action="store_true", default=False, dest="nodeleted", help=QCoreApplication.translate("recovermypartition","Don't recover deleted files"))
@@ -304,56 +314,68 @@ parser.add_option( "--output", action="store",  dest="output", default=output,  
 
 (options, args) = parser.parse_args()
     
-
 if options.partition==None:
-    print (QCoreApplication.translate("recovermypartition","You need to pass --partition parameter"))
+    parser.error (QCoreApplication.translate("recovermypartition","You need to pass --partition parameter"))
     sys.exit(190)
     
 try:
     os.makedirs(options.output)
 except OSError:
-    print (QCoreApplication.translate("recovermypartition","Output directory creating problem. Check it doesn't exist"))
+    parser.error (QCoreApplication.translate("recovermypartition","Output directory creating problem. Check it doesn't exist"))
     sys.exit()
     
-error=open(options.output+"recovermypartition.error", "w")
-log=open(options.output + "/recovermypartition.log", "w")
+error=LogFile(options.output+"recovermypartition.error")
+log=LogFile(options.output + "/recovermypartition.log")
+sleuthkit=LogFile(options.output+"/recovermypartition.sleuthkit")
 tiempo_contador_parcial=time.time()
-log.write(QCoreApplication.translate("recovermypartition","Partition: {0}\n".format(options.partition)))
-log.write(QCoreApplication.translate("recovermypartition","Recovery started: {0}\n".format(str(datetime.datetime.now()))))
+log.append(QCoreApplication.translate("recovermypartition","Partition: {0}\n".format(options.partition)))
+log.append(QCoreApplication.translate("recovermypartition","Recovery started: {0}\n".format(str(datetime.datetime.now()))))
 
-if options.nofiles==False and options.nodeleted==False:
-    print (Color().red(QCoreApplication.translate("recovermypartition","Generating all files list, including deleted")))
-    fls=os.popen("fls -prl " + options.partition ).readlines()
-elif options.nofiles==True and options.nodeleted==False:
-    print (Color().red(QCoreApplication.translate("recovermypartition","Generating deleted files list")))
-    fls=os.popen("fls -prdl " + options.partition ).readlines()
-elif options.nofiles==False and options.nodeleted==True:
-    print (Color().red(QCoreApplication.translate("recovermypartition","Generating normal files list")))
-    fls=os.popen("fls -prul " + options.partition ).readlines()
+
+try:
+    if options.nofiles==False and options.nodeleted==False:
+        print (Color().red(QCoreApplication.translate("recovermypartition","Generating all files list, including deleted")))
+        #fls=os.popen("fls -prl " + options.partition ).readlines()
+        fls=subprocess.check_output(["fls", "-prl", options.partition], stderr=subprocess.STDOUT).split(b"\n")
+    elif options.nofiles==True and options.nodeleted==False:
+        print (Color().red(QCoreApplication.translate("recovermypartition","Generating deleted files list")))
+        fls=os.popen("fls -prdl " + options.partition ).readlines()
+    elif options.nofiles==False and options.nodeleted==True:
+        print (Color().red(QCoreApplication.translate("recovermypartition","Generating normal files list")))
+        fls=os.popen("fls -prul " + options.partition ).readlines()
+except:
+    print (Color().fuchsia(QCoreApplication.translate("recovermypartition", "I couldn't read the partition")))
+    sys.exit(250)
+
+#Quita lineas en blanco se genera con check_output
+try:
+    fls.remove(b"")
+except:
+    pass
 
 ##CREA FICHERO SLEUTHKIT
-f=open(options.output + "/recovermypartition.sleuthkit", "w")
 for line in fls:
-    f.write(line)
-f.close()
+    sleuthkit.append(line.decode('UTF-8')+"\n")
+del sleuthkit
 
 ##ARRANCA    
-print (Color().fuchsia(QCoreApplication.translate( "recovermypartition","Partition or image to analyze: {0}").format(options.partition)))
+print (Color().fuchsia(QCoreApplication.translate( "recovermypartition","Partition or image to analyze: ")) + options.partition)
 print (Color().fuchsia(QCoreApplication.translate("recovermypartition","Output directory")+":          ") + options.output)
 
-num_total_ficheros=0 # Numero de ficheros en la lista de recuperacion
 num_recuperados=0
 num_total_ficheros=len(fls)
-
 puntnumerototalficheros=num_total_ficheros
+
 print (Color().green( QCoreApplication.translate("recovermypartition","+ Recovering {0} files from partition. Process could take long time.").format(num_total_ficheros  )))
 for linea in fls:
+    linea=linea.decode('UTF-8')
     f=File(linea)
     f.save()
     if f.isCriticalError()==False:
         num_recuperados=num_recuperados+1
     else:
         print (f)
+        error.append(linea)
     puntnumerototalficheros=puntnumerototalficheros-1
     cadena= QCoreApplication.translate("recovermypartition","  - Left {0} of {1}. [ Recovered: {2} ]. ETA: {3}                     ").format(puntnumerototalficheros, num_total_ficheros,  Color().green(str(num_recuperados)), Color().yellow(segundos2fechastring(contador(num_total_ficheros-puntnumerototalficheros,num_total_ficheros,tiempo_contador_parcial))))
         
@@ -361,20 +383,13 @@ for linea in fls:
     sys.stdout.write (cadena)   
     sys.stdout.flush()  
 
-error.close()
-print ("\n")
-
-##CREA FICHERO SLEUTHKIT
-f=open(options.output + "/recovermypartition.sleuthkit", "w")
-for line in fls:
-    f.write(line)
-f.close()
-
+print("")
 ##CREA FICHERO LOG
-log.write(QCoreApplication.translate("recovermypartition","Recovery ended: {0}\n").format(str(datetime.datetime.now())))
-log.write(QCoreApplication.translate("recovermypartition","Analyzed files number: {0}\n").format(str(len(fls))))
-log.write(QCoreApplication.translate("recovermypartition","Recovery files number: {0}\n").format(str(num_recuperados)))
-log.close()
+log.append(QCoreApplication.translate("recovermypartition","Recovery ended: {0}\n").format(str(datetime.datetime.now())))
+log.append(QCoreApplication.translate("recovermypartition","Analyzed files number: {0}\n").format(str(len(fls))))
+log.append(QCoreApplication.translate("recovermypartition","Recovery files number: {0}\n").format(str(num_recuperados)))
+del log
+del error
 
 ##MUESTRA TIEMPO DEL PROCESO
 print (Color().green("+ "+QCoreApplication.translate("recovermypartition","Recovery took: {0}").format(segundos2fechastring(time.time()-tiempo_contador_parcial) )))
