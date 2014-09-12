@@ -1,14 +1,15 @@
-DESTDIR ?= /
+DESTDIR ?= /usr
 
-PREFIXBIN=$(DESTDIR)/usr/bin
-PREFIXSHARE=$(DESTDIR)/usr/share/recovermypartition 
+PREFIXBIN=$(DESTDIR)/bin
+PREFIXSHARE=$(DESTDIR)/share/recovermypartition 
 
-install:
+compile:
 	echo "Translating" 
 	pylupdate4 -noobsolete recovermypartition.pro
 	lrelease recovermypartition.pro
 
-	echo "Instalando en ${DESTDIR}"
+install:
+	echo "Instalando en $(DESTDIR)"
 	install -o root -d $(PREFIXBIN)
 	install -o root -d $(PREFIXSHARE)
 	install -m 755 -o root recovermypartition.py $(PREFIXBIN)/recovermypartition
