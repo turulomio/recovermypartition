@@ -2,6 +2,7 @@ Nueva release
 =============
 1) Cambiar la versión en recovermypartition.py
 2) Modificar todos los ficheros RELEASE CHANGELOG con num subversion +1
+3) Update translations
 4) Subir al subversion y comprobar que queda subversion +1
 5) Crear el fichero .tar.gz (con distribution-make que pone la version automatico) y subirlo a sourceforge
 6) Crear un nuevo ebuild con la nueva versión

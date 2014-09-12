@@ -297,7 +297,7 @@ class Sleuthkit:
 ######################################################################
 
 
-version="20130128"
+version="0.3"
     
 a=QCoreApplication(sys.argv)
 language=QLocale().name().split("_")[0]

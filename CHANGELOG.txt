@@ -1,4 +1,4 @@
-recovermypartition XXXXXXXX
+recovermypartition 0.3
 ===========================
 - Changed gettext by qt-core internationalization
 
