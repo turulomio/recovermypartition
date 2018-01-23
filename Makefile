@@ -5,7 +5,7 @@ PREFIXSHARE=$(DESTDIR)/share/recovermypartition
 
 compile:
 	echo "Translating" 
-	pylupdate4 -noobsolete recovermypartition.pro
+	pylupdate5 -noobsolete recovermypartition.pro
 	lrelease recovermypartition.pro
 
 install:

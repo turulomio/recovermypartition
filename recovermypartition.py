@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import os, sys, time, math,  calendar,  datetime, subprocess
-from PyQt4.QtCore import *
+from PyQt5.QtCore import *
 from optparse import OptionParser
 
 class Color:
