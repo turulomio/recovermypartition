@@ -1,2 +1,0 @@
-20130129 Si hay un ' en el nombre del fichero falla, escaparlo
-20130130 Cuando se pone mal la partición o el dev, que pare el programa y de error

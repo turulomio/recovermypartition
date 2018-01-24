@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="es" sourcelanguage="en">
+<!DOCTYPE TS><TS version="2.0" language="ru" sourcelanguage="en">
 <context>
     <name>recovermypartition</name>
     <message>
@@ -146,7 +146,7 @@
     <message>
         <location filename="../Makefile.py" line="74"/>
         <source>DESCRIPTION</source>
-        <translation>DESCRIPCIÓN</translation>
+        <translation>ОПИСАНИЕ</translation>
     </message>
     <message>
         <location filename="../Makefile.py" line="71"/>
