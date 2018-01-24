@@ -3,7 +3,7 @@ import os, sys, time, math,  calendar,  datetime, subprocess
 from PyQt5.QtCore import *
 from optparse import OptionParser
 
-version="0.3+"
+version="0.4"
 
 class Color:
     esc_seq = "\x1b["

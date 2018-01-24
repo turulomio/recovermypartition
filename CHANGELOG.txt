@@ -1,11 +1,8 @@
-
-recovermypartition XXX
+recovermypartition 0.4
 ======================
 - Added man pages support
 - Migrated to PyQt5
 - Added more translations
-
-
 
 recovermypartition 0.3
 ======================
