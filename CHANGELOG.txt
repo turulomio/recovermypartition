@@ -1,5 +1,14 @@
+
+recovermypartition XXX
+======================
+- Added man pages support
+- Migrated to PyQt5
+- Added more translations
+
+
+
 recovermypartition 0.3
-===========================
+======================
 - Changed gettext by qt-core internationalization
 
 recovermypartition 0.2
